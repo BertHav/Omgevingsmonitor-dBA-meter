@@ -272,18 +272,22 @@ bool startSPLcalculation(void)
 
 // Called from the DMA ISR when the first half of the DMA buffer is full,
 // i.e. "HALF_BUFLEN" uint16s are in the first half of dmaBuffer
-void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s2)
+void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s2loc)
 {
+  if (hi2s2loc == hi2s2) {
     UNUSED(hi2s2);
     processHalfDMAbuffer(0);
+  }
 }
 
 // Called from the DMA ISR when the second half of the DMA buffer is full,
 // i.e. "HALF_BUFLEN" uint16s are in the second half of dmaBuffer
-void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s2)
+void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s2loc)
 {
+  if (hi2s2loc == hi2s2) {
     UNUSED(hi2s2);
     processHalfDMAbuffer(HALF_BUFLEN);
+  }
 }
 
 static void processHalfDMAbuffer(uint32_t halfBufferStart)
@@ -307,10 +311,12 @@ static void processHalfDMAbuffer(uint32_t halfBufferStart)
     }
 }
 
-void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s2)
+void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s2loc)
 {
+  if (hi2s2loc == hi2s2) {
     UNUSED(hi2s2);
     errorHandler(__func__, __LINE__, __FILE__);
+  }
 }
 
 // Calculate A-weighted SPL and frequency-band SPL from input data.

@@ -11,6 +11,7 @@
 #include "EEprom.h"
 #include "Config.h"
 #include "PowerUtils.h"
+#include "cred.h"
 
 static UART_HandleTypeDef* EspUart = NULL;
 extern DMA_HandleTypeDef hdma_usart4_rx;
@@ -40,8 +41,6 @@ static uint32_t stop;
 //static bool measurementDone = false;
 //static const char SSIDBeurs[] = "25ac316853";
 //static const char PasswordBeurs[] = "HalloDitIsDeWifi!2024";
-static const char SSIDBeurs[] = "Zonoctu2";
-static const char PasswordBeurs[] = "Baaishopbitje8";
 float Temperature = 0;
 float Humidity = 0;
 float batteryCharge = 0;
@@ -161,6 +160,7 @@ static bool ESP_Receive(uint8_t* reply, uint8_t length) {
 //  HAL_UART_DMAStop(EspUart);
   RxComplete = false;
   HAL_StatusTypeDef status = HAL_UART_Receive_DMA(EspUart, reply, length);
+  Info("reply is: %s", reply);
   if (status != HAL_OK) {
     Debug("Error in HAL_UART_Receive_DMA.");
     RxComplete = true;
@@ -172,6 +172,8 @@ static bool ESP_Receive(uint8_t* reply, uint8_t length) {
 // Callback for reception complete
 //void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 //  if (huart == EspUart) {
+//    HAL_UART_Receive_DMA(EspUart, RxBuffer, ESP_MAX_BUFFER_SIZE);
+//    Info("reply in complete is: %s", RxBuffer);
 //    RxComplete = true;
 //    Debug("RxComplete");
 //  }
@@ -182,7 +184,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
   if (huart == EspUart) {
     // Handle error
     //EspState = ESP_STATE_ERROR;
-    Debug("A callback error has occurred");
+    Debug("A callback error has occurred, errorcode %d", huart->ErrorCode);
     errorHandler(__func__, __LINE__, __FILE__);
   }
 }
@@ -501,6 +503,7 @@ bool HTTPCPOST(){
 bool SENDDATA(){
   uint16_t len = strlen(message);
   if(ESP_Send((uint8_t*)message, len)) {
+    printf("message: %s\r\n", message);
     return true;
   }
   else{

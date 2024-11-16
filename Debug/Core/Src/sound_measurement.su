@@ -8,9 +8,9 @@ C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/CMSIS/Includ
 ../Core/Src/sound_measurement.c:219:6:enableMicrophone	16	static
 ../Core/Src/sound_measurement.c:258:6:startSPLcalculation	8	static
 ../Core/Src/sound_measurement.c:275:6:HAL_I2S_RxHalfCpltCallback	16	static
-../Core/Src/sound_measurement.c:283:6:HAL_I2S_RxCpltCallback	16	static
-../Core/Src/sound_measurement.c:289:13:processHalfDMAbuffer	16	static
-../Core/Src/sound_measurement.c:310:6:HAL_I2S_ErrorCallback	16	static
-../Core/Src/sound_measurement.c:321:13:calculateSPLQ31	224	static
-../Core/Src/sound_measurement.c:447:13:resetSPLstate	16	static
-../Core/Src/sound_measurement.c:464:17:getFilteredMaxAmplitudeQ31	80	static
+../Core/Src/sound_measurement.c:285:6:HAL_I2S_RxCpltCallback	16	static
+../Core/Src/sound_measurement.c:293:13:processHalfDMAbuffer	16	static
+../Core/Src/sound_measurement.c:314:6:HAL_I2S_ErrorCallback	16	static
+../Core/Src/sound_measurement.c:327:13:calculateSPLQ31	224	static
+../Core/Src/sound_measurement.c:453:13:resetSPLstate	16	static
+../Core/Src/sound_measurement.c:470:17:getFilteredMaxAmplitudeQ31	80	static
