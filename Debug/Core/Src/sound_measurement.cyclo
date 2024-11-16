@@ -1,0 +1,16 @@
+C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/CMSIS/Include/core_cm0plus.h:741:22:__NVIC_EnableIRQ	2
+C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/CMSIS/Include/core_cm0plus.h:777:22:__NVIC_DisableIRQ	2
+../Core/Src/sound_measurement.c:92:6:getSoundData	10
+../Core/Src/sound_measurement.c:164:6:soundInit	1
+../Core/Src/sound_measurement.c:178:6:clearMaximumAmplitude	1
+../Core/Src/sound_measurement.c:187:13:startMicSettlingPeriod	2
+../Core/Src/sound_measurement.c:202:6:micSettlingComplete	2
+../Core/Src/sound_measurement.c:219:6:enableMicrophone	5
+../Core/Src/sound_measurement.c:258:6:startSPLcalculation	3
+../Core/Src/sound_measurement.c:275:6:HAL_I2S_RxHalfCpltCallback	1
+../Core/Src/sound_measurement.c:283:6:HAL_I2S_RxCpltCallback	1
+../Core/Src/sound_measurement.c:289:13:processHalfDMAbuffer	3
+../Core/Src/sound_measurement.c:310:6:HAL_I2S_ErrorCallback	1
+../Core/Src/sound_measurement.c:321:13:calculateSPLQ31	20
+../Core/Src/sound_measurement.c:447:13:resetSPLstate	2
+../Core/Src/sound_measurement.c:464:17:getFilteredMaxAmplitudeQ31	8

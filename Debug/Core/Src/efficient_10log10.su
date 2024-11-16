@@ -1,0 +1,3 @@
+../Core/Src/efficient_10log10.c:26:13:accessLUT10log10	32	static
+../Core/Src/efficient_10log10.c:41:6:efficient10log10	80	static
+../Core/Src/efficient_10log10.c:78:6:correctIntFracNumber	16	static

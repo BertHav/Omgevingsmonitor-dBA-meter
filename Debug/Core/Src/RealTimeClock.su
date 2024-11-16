@@ -1,0 +1,9 @@
+../Core/Src/RealTimeClock.c:15:6:RTC_SetTime	48	static
+../Core/Src/RealTimeClock.c:31:6:InitClock	16	static
+../Core/Src/RealTimeClock.c:36:6:RTC_GetTime	56	static
+../Core/Src/RealTimeClock.c:48:6:RTC_SetDate	32	static
+../Core/Src/RealTimeClock.c:62:6:RTC_GetDate	40	static
+../Core/Src/RealTimeClock.c:76:6:RTC_SetAlarm	64	static
+../Core/Src/RealTimeClock.c:96:6:RTC_SetWakeUpTimer	16	static
+../Core/Src/RealTimeClock.c:108:6:Enter_Standby_Mode	8	static
+../Core/Src/RealTimeClock.c:117:6:Enter_Stop_Mode	8	static
