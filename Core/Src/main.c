@@ -75,7 +75,8 @@
   Battery_Status charge;
   ESP_States ESP_Status;
   extern DMA_HandleTypeDef hdma_spi2_rx;
-/* USER CODE END PV */
+
+  /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -235,6 +236,7 @@ int main(void)
     if(testDone && !ESP_Programming && !batteryEmpty){
       MeasurementBusy = UpkeepGadget();
       ESP_Status = ESP_Upkeep();
+
     }
     if(!testDone && !ESP_Programming && !batteryEmpty){
       Gadget_Test();
@@ -257,17 +259,6 @@ int main(void)
     if(charge == BATTERY_FULL){
 
     }
-/*
-    if (getSoundData(&soundData, true, true)) {
-      clearMaximumAmplitude();
-      print("SPL_dBA: %u.%u peak_amp_mPa: %u.%02u   \r", soundData.SPL_dBA_int,
-             soundData.SPL_dBA_fr_1dp, soundData.peak_amp_mPa_int,
-             soundData.peak_amp_mPa_fr_2dp);
-      if (!startSPLcalculation()) {
-        errorHandler(__func__, __LINE__, __FILE__);
-      }
-    }
-*/
 //    if(TimestampIsReached(LedBlinkTimestamp)) {
 //      // Red LED
 //

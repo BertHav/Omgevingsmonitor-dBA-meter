@@ -178,7 +178,7 @@ void Status_Upkeep(){
 Battery_Status Battery_Upkeep(){
   Battery_Status status;
   status = powerCheck();
-  powerDisplay(status);
+  powerDisplay(status);  // output LEDs are okay
   return status;
 
 }

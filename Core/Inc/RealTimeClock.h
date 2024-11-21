@@ -5,6 +5,7 @@
 #include "stm32l0xx_hal_rcc.h"
 #include "utils.h"
 
+void ParseTime(char* buffer);
 // Functies voor het instellen en uitlezen van de tijd
 void RTC_SetTime(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8_t seconds);
 void RTC_GetTime(RTC_HandleTypeDef *hrtc, uint8_t *hours, uint8_t *minutes, uint8_t *seconds);

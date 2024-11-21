@@ -17,9 +17,8 @@
 #include "PC_Config.h"
 #include "statusCheck.h"
 
-
 #define ESP_MAX_UART_RETRIES 2
-#define ESP_MAX_BUFFER_SIZE 255
+#define ESP_MAX_BUFFER_SIZE 256
 #define ESP_TX_BUFFER_SIZE 512
 #define ESP_START_UP_TIME 700
 #define ESP_RESPONSE_TIME 10
@@ -28,6 +27,7 @@
 #define ESP_DMA_TIMEOUT 100
 #define ESP_AT_COMMANDS_COUNT 4
 #define ESP_UNTIL_NEXT_SEND 300000
+#define ESP_UNTIL_NEXT_NTP 14400000
 
 #define ESP_SEND_TEMP "\"temp\""
 #define ESP_SEND_HUMID "\"humid\""
@@ -41,8 +41,9 @@
 #define AT_RESPONSE_READY "ready"
 #define AT_RESPONSE_START ">"
 #define AT_RESPONSE_WIFI "WIFI CONNECTED"
+#define AT_RESPONSE_TIME_UPDATED "+TIME_UPDATED"
 
-#define AT_COMMANDS_SIZE 18
+#define AT_COMMANDS_SIZE 21
 
 typedef enum {
   ESP_TEST_INIT,
@@ -58,7 +59,8 @@ typedef enum {
   AT_MODE_CONFIG,
   AT_MODE_SEND,
   AT_MODE_RECONFIG,
-  AT_MODE_TEST
+  AT_MODE_TEST,
+  AT_MODE_GETTIME
 }AT_Mode;
 
 typedef enum {
@@ -72,7 +74,8 @@ typedef enum {
   RECEIVE_STATUS_UNPROGGED,
   RECEIVE_STATUS_HOME,
   RECEIVE_STATUS_SSID,
-  RECEIVE_STATUS_LOOP
+  RECEIVE_STATUS_LOOP,
+  RECEIVE_STATUS_TIME
 }Receive_Status;
 
 typedef enum {
@@ -81,6 +84,7 @@ typedef enum {
   RECEIVE_EXPECTATION_START,
   RECEIVE_EXPECTATION_WIFI,
   RECEIVE_EXPECTATION_SSID,
+  RECEIVE_EXPECTATION_TIME
 } AT_Expectation;
 
 typedef enum {
@@ -120,6 +124,9 @@ typedef enum {
   AT_HTTPCPOST,
   AT_SENDDATA,
   AT_SLEEP,
+  AT_CIPSNTPCFG,
+  AT_CIPSNTPTIME,
+  AT_CIPSNTPINTV,
   AT_END
 } AT_Commands;
 

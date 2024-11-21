@@ -1,5 +1,7 @@
 #include "rtc.h"
 #include "RealTimeClock.h"
+#include <string.h>
+#include <stdlib.h>
 
 typedef struct {
   uint8_t Hours;
@@ -9,7 +11,59 @@ typedef struct {
 
 static Clock RealTime = {.Hours = 0, .Minutes = 0, .Seconds = 0};
 static Clock NextAction = {.Hours = 0, .Minutes = 0, .Seconds = 0};
+static const char *dayNames[7] = {  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // 1 tot 7
+static const char *monthNames[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}; // 1 tot 12
 RTC_HandleTypeDef* RealTime_Handle = NULL;
+
+//  0         1         2         3  3
+//  0         0         0         0  3
+//  +CIPSNTPTIME:Thu Jan  1 01:00:03 1970
+//OK
+uint8_t aBuff2int(char* aBuff, uint8_t start, uint8_t stop) {
+  char iBuff[5];
+  uint8_t i;
+  uint8_t pos = 0;
+  for (i = start; i <= stop ; i++){
+    iBuff[pos] = aBuff[i];
+    pos++;
+  }
+  iBuff[pos] = '\0';
+  if (start < 20) {
+    if (start == 17) { //month
+      for (i = 0; i < 12; i++) {
+        if (strcmp( iBuff, monthNames[i]) == 0) {
+          return i+1;
+        }
+      }
+    }
+    else {
+      //day
+      for (i = 0; i < 7; i++) {
+        if (strcmp( iBuff, dayNames[i]) == 0) {
+          return i+1;
+        }
+      }
+    }
+  }
+  return atoi(iBuff);
+}
+
+void ParseTime(char* buffer) {
+  uint8_t year, month, day, weekday, hours, minutes, seconds;
+  uint8_t dag, maand, jaar, weekdag, uren, minuten, seconden;
+  hours = aBuff2int(buffer, 24, 25);
+  minutes = aBuff2int(buffer, 27, 28);
+  seconds = aBuff2int(buffer, 30, 31);
+  RTC_SetTime(&hrtc, hours, minutes, seconds);
+  year = aBuff2int(buffer, 35, 36);
+  month = aBuff2int(buffer, 17, 19);
+  day = aBuff2int(buffer, 21,22);
+  weekday = aBuff2int(buffer, 13, 15);
+  RTC_SetDate(&hrtc, weekday, day, month, year);
+  RTC_GetDate(&hrtc, &weekdag, &dag, &maand, &jaar);
+  RTC_GetTime(&hrtc, &uren, &minuten, &seconden);
+  printf("time from RTC is: %02d:%02d:%02d, date: %02d-%02d-%02d\r\n", uren, minuten, seconden, dag, maand, jaar);
+}
 
 // Functie om de tijd in te stellen
 void RTC_SetTime(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8_t seconds) {
@@ -25,6 +79,8 @@ void RTC_SetTime(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8_
 
     if (HAL_RTC_SetTime(hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
+      Debug("Error setting time to RTC");
+
     }
 }
 
@@ -38,6 +94,7 @@ void RTC_GetTime(RTC_HandleTypeDef *hrtc, uint8_t *hours, uint8_t *minutes, uint
 
     if (HAL_RTC_GetTime(hrtc, &gTime, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
+      Debug("Error getting time from RTC");
     }
 
     *hours = gTime.Hours;
@@ -55,6 +112,7 @@ void RTC_SetDate(RTC_HandleTypeDef *hrtc, uint8_t weekday, uint8_t day, uint8_t 
 
     if (HAL_RTC_SetDate(hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
+      Debug("Error setting date to RTC");
     }
 }
 
@@ -64,6 +122,8 @@ void RTC_GetDate(RTC_HandleTypeDef *hrtc, uint8_t *weekday, uint8_t *day, uint8_
 
     if (HAL_RTC_GetDate(hrtc, &gDate, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
+      Debug("Error getting date from RTC");
+
     }
 
     *weekday = gDate.WeekDay;
