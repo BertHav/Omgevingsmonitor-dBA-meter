@@ -16,9 +16,9 @@
 
 typedef enum {
 	VERBOSE_NONE = 0,
-    VERBOSE_MINIMAL = 1,
-    VERBOSE_INFO = 2,
-    VERBOSE_ALL = 3
+  VERBOSE_MINIMAL = 1,
+  VERBOSE_INFO = 2,
+  VERBOSE_ALL = 3
 } VerboseLevel;
 
 bool TimestampIsReached(uint32_t timestamp);

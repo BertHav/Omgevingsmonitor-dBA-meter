@@ -80,7 +80,7 @@ void BinaryReleaseInfo() {
   Info("=-=-=-=-=-=WOTS Gadget started.=-=-=-=-=-=");
   Info("Build on: %s at %s", __DATE__, __TIME__);
   // Format: YY'w'WWv
-  Info("Git: 24w47a");
+  Info("Git: 24w47b");
   Info("Software version: %s", SRC_VERSION);
 }
 

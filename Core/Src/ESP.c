@@ -31,7 +31,7 @@ static bool ReconfigSet = false;
 static bool ConnectionMade = false;
 static bool beursTest = false;
 static bool beurs = false;
-static bool setTime = false;
+static bool setTime = true;
 static uint32_t uid[3];
 static uint32_t start;
 static uint32_t stop;
@@ -63,7 +63,7 @@ static AT_Commands AT_SNTP[] = {AT_WAKEUP, AT_CIPSNTPCFG, AT_CIPSNTPTIME, AT_CIP
 uint8_t ATState;
 uint8_t ATCounter = 0;
 static uint32_t ESPTimeStamp = 0;
-static uint32_t ESPNTPTimeStamp = 15000;
+static uint32_t ESPNTPTimeStamp = 0;
 static uint32_t savedESPTimeStamp = 0;
 static uint8_t retry = 0;
 
@@ -582,7 +582,7 @@ Receive_Status DMA_ProcessBuffer(uint8_t expectation) {
       pos = ESP_MAX_BUFFER_SIZE;
     }
     if(pos == OldPos){
-      if(retry >4){
+      if(retry >9){
         retry = 0;
         //EspState = ESP_STATE_SEND;
         if(ATCommand == AT_WAKEUP && testRound == true){
@@ -597,7 +597,7 @@ Receive_Status DMA_ProcessBuffer(uint8_t expectation) {
       }
      else{
        retry ++;
-       ESPTimeStamp = HAL_GetTick() + ESP_WIFI_INIT_TIME + 2500;
+       ESPTimeStamp = HAL_GetTick() + ESP_WIFI_RETRY_TIME;
        status = RECEIVE_STATUS_RETRY;
       }
     }

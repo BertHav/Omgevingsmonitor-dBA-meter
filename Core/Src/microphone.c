@@ -267,33 +267,30 @@ void MIC_Print(void) {
 //  HAL_GPIO_WritePin(MCU_LED_C_R_GPIO_Port, MCU_LED_C_R_Pin, 1);
 //  HAL_GPIO_WritePin(MCU_LED_C_G_GPIO_Port, MCU_LED_C_G_Pin, 1);
 //  HAL_GPIO_WritePin(MCU_LED_C_B_GPIO_Port, MCU_LED_C_B_Pin, 1);
-  if(dBc > 90){ //white
+  if(dBc >= 90){//white
     SetDBLED(true, true, true);
   }
   if(dBc < 90 && dBc >= 80){ //red
     SetDBLED(true, false, false);
   }
-  if(dBc < 80 && dBc >= 70){//purple
-    SetDBLED(true, false, true);
-  }
-  if(dBc < 70 && dBc >= 60){//yellow
+  if(dBc < 80 && dBc >= 70){//yellow
     SetDBLED(true, true, false);
   }
-  if(dBc < 60 && dBc >= 50){//Green
+  if(dBc < 70 && dBc >= 60){//Green
     SetDBLED(false, true, false);
   }
-  if(dBc < 50 && dBc >= 40){//blue
+  if(dBc < 60 && dBc >= 50){//blue
     SetDBLED(false, false, true);
   }
-  if(dBc < 40 && dBc >= 35){//light blue
+  if(dBc < 50 && dBc >= 40){//light blue
     SetDBLED(false, true, true);
+  }
+  if(dBc < 40 && dBc >= 35){//purple
+    SetDBLED(true, false, true);
   }
   if(dBc < 35){//off
     SetDBLED(false, false, false);
   }
-
-
-  //FFT();
 }
 
 

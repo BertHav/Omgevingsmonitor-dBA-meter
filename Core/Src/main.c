@@ -32,7 +32,6 @@
 /* USER CODE BEGIN Includes */
 #include "gadget.h"
 #include "utils.h"
-//#include "microphone.h"
 #include "measurement.h"
 #include "globals.h"
 #include "ESP.h"
@@ -67,6 +66,12 @@
   bool batteryEmpty = false;
   bool MeasurementBusy;
   uint8_t RxData[UART_CDC_DMABUFFERSIZE] = {0};
+  uint8_t lasthour = 0;
+  uint8_t lastminute = 0;
+  uint8_t lastsecond = 0;
+  uint8_t myUptimeminute = 0;
+  uint8_t myUptimehour = 0;
+  uint16_t myUptimeday = 0;
   uint16_t IndexRxData = 0;
   uint32_t LastRxTime = 0;
   uint32_t batteryReadTimer = 0;
@@ -76,7 +81,7 @@
   ESP_States ESP_Status;
   extern DMA_HandleTypeDef hdma_spi2_rx;
 
-  /* USER CODE END PV */
+/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -140,7 +145,7 @@ void ESP_Programming_Read_Remaining_DMA()
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t u1_rx_buff[16];  // rxbuffer for serial logger
 /* USER CODE END 0 */
 
 /**
@@ -207,6 +212,7 @@ int main(void)
   SetVerboseLevel(VERBOSE_ALL);
   BinaryReleaseInfo();
   InitClock(&hrtc);
+  HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
   //===========
   if (!soundInit(&hdma_spi2_rx, &hi2s2, &htim6, DMA1_Channel4_5_6_7_IRQn))
   {
@@ -245,7 +251,19 @@ int main(void)
     if(TimestampIsReached(batteryReadTimer)){
       charge = Battery_Upkeep();
       batteryReadTimer  = HAL_GetTick() + 60000;
-      //GoToSleep(2);
+      RTC_GetTime(&hrtc, &lasthour, &lastminute, &lastsecond);
+      if (myUptimeminute != lastminute) {
+        myUptimeminute++;
+      }
+      if (myUptimeminute == 60) {
+        myUptimeminute = 0;
+        myUptimehour++;
+        if (myUptimehour == 24) {
+          myUptimehour = 0;
+          myUptimeday++;
+        }
+        printf("Systemuptime is: %d days %02d:%02d\r\n", myUptimeday, myUptimehour, myUptimeminute);
+      }
     }
     if(charge == BATTERY_LOW || charge == BATTERY_CRITICAL){
 
@@ -343,6 +361,15 @@ void printString(const char * str, uint16_t length)
     HAL_UART_Transmit(&huart1, (uint8_t*) str, length, 0xFFFF);
 }
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
+  if (u1_rx_buff[0] == (uint8_t)'?') {
+    RTC_GetTime(&hrtc, &lasthour, &lastminute, &lastsecond);
+    printf("=== System time: %02d:%02d:%02d, system uptime is: %d days %02d:%02d ===\r\n", lasthour, lastminute, lastsecond, myUptimeday, myUptimehour, myUptimeminute);
+  }
+  HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt
+}
 /* USER CODE END 4 */
 
 /**
