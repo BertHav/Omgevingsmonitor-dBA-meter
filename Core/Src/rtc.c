@@ -34,6 +34,9 @@ void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
+  RTC_TimeTypeDef sTime = {0};
+  RTC_DateTypeDef sDate = {0};
+
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
@@ -53,9 +56,41 @@ void MX_RTC_Init(void)
     Error_Handler();
   }
 
+  /* USER CODE BEGIN Check_RTC_BKUP */
+
+  /* USER CODE END Check_RTC_BKUP */
+
+  /** Initialize RTC and set the Time and Date
+  */
+  sTime.Hours = 13;
+  sTime.Minutes = 0;
+  sTime.Seconds = 0;
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sDate.WeekDay = RTC_WEEKDAY_SATURDAY;
+  sDate.Month = RTC_MONTH_NOVEMBER;
+  sDate.Date = 23;
+  sDate.Year = 24;
+
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
   /** Enable the WakeUp
   */
   if (HAL_RTCEx_SetWakeUpTimer(&hrtc, 0, RTC_WAKEUPCLOCK_RTCCLK_DIV16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Enable Calibrartion
+  */
+  if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_512HZ) != HAL_OK)
   {
     Error_Handler();
   }
@@ -68,6 +103,7 @@ void MX_RTC_Init(void)
 void HAL_RTC_MspInit(RTC_HandleTypeDef* rtcHandle)
 {
 
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   if(rtcHandle->Instance==RTC)
   {
   /* USER CODE BEGIN RTC_MspInit 0 */
@@ -75,6 +111,13 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef* rtcHandle)
   /* USER CODE END RTC_MspInit 0 */
     /* RTC clock enable */
     __HAL_RCC_RTC_ENABLE();
+
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    /**RTC GPIO Configuration
+    PC13     ------> RTC_OUT_CALIB
+    */
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /* USER CODE BEGIN RTC_MspInit 1 */
 
   /* USER CODE END RTC_MspInit 1 */
@@ -91,6 +134,12 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
   /* USER CODE END RTC_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_RTC_DISABLE();
+
+    /**RTC GPIO Configuration
+    PC13     ------> RTC_OUT_CALIB
+    */
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_13);
+
   /* USER CODE BEGIN RTC_MspDeInit 1 */
 
   /* USER CODE END RTC_MspDeInit 1 */

@@ -10,10 +10,10 @@ typedef struct {
 }Clock;
 
 static Clock RealTime = {.Hours = 0, .Minutes = 0, .Seconds = 0};
-static Clock NextAction = {.Hours = 0, .Minutes = 0, .Seconds = 0};
-static const char *dayNames[7] = {  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // 1 tot 7
-static const char *monthNames[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}; // 1 tot 12
-RTC_HandleTypeDef* RealTime_Handle = NULL;
+//static Clock NextAction = {.Hours = 0, .Minutes = 0, .Seconds = 0};
+static const char *dayNames[7] = {  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // 1 to 7
+static const char *monthNames[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}; // 1 to 12
+static RTC_HandleTypeDef * RealTime_Handle;
 
 //  0         1         2         3  3
 //  0         0         0         0  3
@@ -50,23 +50,20 @@ uint8_t aBuff2int(char* aBuff, uint8_t start, uint8_t stop) {
 
 void ParseTime(char* buffer) {
   uint8_t year, month, day, weekday, hours, minutes, seconds;
-  uint8_t dag, maand, jaar, weekdag, uren, minuten, seconden;
   hours = aBuff2int(buffer, 24, 25);
   minutes = aBuff2int(buffer, 27, 28);
   seconds = aBuff2int(buffer, 30, 31);
-  RTC_SetTime(&hrtc, hours, minutes, seconds);
+  RTC_SetTime(hours, minutes, seconds);
   year = aBuff2int(buffer, 35, 36);
   month = aBuff2int(buffer, 17, 19);
   day = aBuff2int(buffer, 21,22);
   weekday = aBuff2int(buffer, 13, 15);
-  RTC_SetDate(&hrtc, weekday, day, month, year);
-  RTC_GetDate(&hrtc, &weekdag, &dag, &maand, &jaar);
-  RTC_GetTime(&hrtc, &uren, &minuten, &seconden);
-  printf("time from RTC is: %02d:%02d:%02d, date: %02d-%02d-%02d\r\n", uren, minuten, seconden, dag, maand, jaar);
+  RTC_SetDate(weekday, day, month, year);
+  printf("PARSETIME parameters => weekday: %d, year: %d, month: %d, day: %d, hours: %d, minutes: %d, seconds: %d\r\n", weekday, year, month, day, hours, minutes, seconds);
 }
 
 // Functie om de tijd in te stellen
-void RTC_SetTime(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8_t seconds) {
+void RTC_SetTime(uint8_t hours, uint8_t minutes, uint8_t seconds) {
     RTC_TimeTypeDef sTime = {0};
 
     sTime.Hours = hours;
@@ -76,33 +73,14 @@ void RTC_SetTime(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8_
     sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     sTime.StoreOperation = RTC_STOREOPERATION_RESET;
     
-
-    if (HAL_RTC_SetTime(hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
+    if (HAL_RTC_SetTime(RealTime_Handle, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
       Debug("Error setting time to RTC");
-
     }
 }
 
-void InitClock(RTC_HandleTypeDef *hrtc){
-  RealTime_Handle = hrtc;
-  RTC_SetTime(RealTime_Handle, RealTime.Hours, RealTime.Minutes, RealTime.Seconds);
-}
-// Functie om de tijd uit te lezen
-void RTC_GetTime(RTC_HandleTypeDef *hrtc, uint8_t *hours, uint8_t *minutes, uint8_t *seconds) {
-    RTC_TimeTypeDef gTime = {0};
-
-    if (HAL_RTC_GetTime(hrtc, &gTime, RTC_FORMAT_BIN) != HAL_OK) {
-        // Foutafhandeling
-      Debug("Error getting time from RTC");
-    }
-
-    *hours = gTime.Hours;
-    *minutes = gTime.Minutes;
-    *seconds = gTime.Seconds;
-}
 // Functie om de datum in te stellen
-void RTC_SetDate(RTC_HandleTypeDef *hrtc, uint8_t weekday, uint8_t day, uint8_t month, uint8_t year) {
+void RTC_SetDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t year) {
     RTC_DateTypeDef sDate = {0};
 
     sDate.WeekDay = weekday;
@@ -110,22 +88,26 @@ void RTC_SetDate(RTC_HandleTypeDef *hrtc, uint8_t weekday, uint8_t day, uint8_t 
     sDate.Month = month;
     sDate.Year = year;  // Jaartal zonder eeuw (bv. 2024 -> 24)
 
-    if (HAL_RTC_SetDate(hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
+    if (HAL_RTC_SetDate(RealTime_Handle, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
       Debug("Error setting date to RTC");
     }
 }
 
-// Functie om de datum uit te lezen
-void RTC_GetDate(RTC_HandleTypeDef *hrtc, uint8_t *weekday, uint8_t *day, uint8_t *month, uint8_t *year) {
+// Functie om de tijd uit te lezen
+void RTC_GetTime(uint8_t *hours, uint8_t *minutes, uint8_t *seconds, uint8_t *weekday, uint8_t *day, uint8_t *month, uint8_t *year) {
+    RTC_TimeTypeDef gTime = {0};
     RTC_DateTypeDef gDate = {0};
 
-    if (HAL_RTC_GetDate(hrtc, &gDate, RTC_FORMAT_BIN) != HAL_OK) {
-        // Foutafhandeling
-      Debug("Error getting date from RTC");
-
+    if (HAL_RTC_GetTime(RealTime_Handle, &gTime, RTC_FORMAT_BIN) != HAL_OK) {
+      Debug("Error getting time from RTC");
     }
-
+    if (HAL_RTC_GetDate(RealTime_Handle, &gDate, RTC_FORMAT_BIN) != HAL_OK) {
+      Debug("Error getting date from RTC");
+    }
+    *hours = gTime.Hours;
+    *minutes = gTime.Minutes;
+    *seconds = gTime.Seconds;
     *weekday = gDate.WeekDay;
     *day = gDate.Date;
     *month = gDate.Month;
@@ -133,7 +115,7 @@ void RTC_GetDate(RTC_HandleTypeDef *hrtc, uint8_t *weekday, uint8_t *day, uint8_
 }
 
 // Functie om een alarm in te stellen
-void RTC_SetAlarm(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8_t seconds) {
+void RTC_SetAlarm(uint8_t hours, uint8_t minutes, uint8_t seconds) {
     RTC_AlarmTypeDef sAlarm = {0};
 
     sAlarm.AlarmTime.Hours = hours;
@@ -142,7 +124,7 @@ void RTC_SetAlarm(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8
     sAlarm.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
     sAlarm.Alarm = RTC_ALARM_A;
 
-    if (HAL_RTC_SetAlarm_IT(hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK) {
+    if (HAL_RTC_SetAlarm_IT(RealTime_Handle, &sAlarm, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
     }
 }
@@ -153,13 +135,13 @@ void RTC_SetAlarm(RTC_HandleTypeDef *hrtc, uint8_t hours, uint8_t minutes, uint8
 //     HAL_GPIO_TogglePin(LED_C_Red_GPIO_Port, LED_C_Red_Pin);
 // }
 
-void RTC_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t secondsOfSleep)
+void RTC_SetWakeUpTimer(uint32_t secondsOfSleep)
 {
     //Switch of the timer to reset it
-    HAL_RTCEx_DeactivateWakeUpTimer(hrtc);
+    HAL_RTCEx_DeactivateWakeUpTimer(&hrtc);
 
     //Set the prescale so that the clock will be 1Hz
-    HAL_RTCEx_SetWakeUpTimer_IT(hrtc, secondsOfSleep, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
+    HAL_RTCEx_SetWakeUpTimer_IT(RealTime_Handle, secondsOfSleep, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
 
     HAL_NVIC_SetPriority(RTC_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(RTC_IRQn);
@@ -181,4 +163,9 @@ void Enter_Stop_Mode(void)
 
     // Instellen op Stop mode met low-power regulator
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+}
+
+void InitClock(RTC_HandleTypeDef* h_hrtc){
+  RealTime_Handle = h_hrtc;
+  RTC_SetTime(RealTime.Hours, RealTime.Minutes, RealTime.Seconds);
 }

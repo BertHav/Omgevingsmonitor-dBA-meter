@@ -166,7 +166,7 @@ void GoToSleep(uint32_t sleepTime){
   HAL_Delay(1000);
   HAL_SuspendTick();
   //set wake up timer
-  RTC_SetWakeUpTimer(&hrtc, sleepTime);
+  RTC_SetWakeUpTimer(sleepTime);
   HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
   HAL_ResumeTick();
 }

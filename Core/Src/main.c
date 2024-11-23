@@ -66,17 +66,26 @@
   bool batteryEmpty = false;
   bool MeasurementBusy;
   uint8_t RxData[UART_CDC_DMABUFFERSIZE] = {0};
+  uint8_t iMinute = 0;
   uint8_t lasthour = 0;
   uint8_t lastminute = 0;
   uint8_t lastsecond = 0;
+  uint8_t weekday;
+  uint8_t day;
+  uint8_t month;
+  uint8_t year;
   uint8_t myUptimeminute = 0;
   uint8_t myUptimehour = 0;
   uint16_t myUptimeday = 0;
   uint16_t IndexRxData = 0;
   uint32_t LastRxTime = 0;
   uint32_t batteryReadTimer = 0;
+  uint32_t timeReadTimer = 0;
   uint32_t sleepTime = 0;
   uint16_t size = 0;
+  char timeData[15];
+  char dateData[15];
+
   Battery_Status charge;
   ESP_States ESP_Status;
   extern DMA_HandleTypeDef hdma_spi2_rx;
@@ -146,6 +155,7 @@ void ESP_Programming_Read_Remaining_DMA()
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint8_t u1_rx_buff[16];  // rxbuffer for serial logger
+
 /* USER CODE END 0 */
 
 /**
@@ -195,8 +205,8 @@ int main(void)
 	/*
 	 * : Put SSID in EEPROM
 	 * : Turn on heater if humidity is too high
-	 * : NTP sets RTC
-	 * : FFT Processing bins
+	 * : NTP sets RTC done
+	 * : FFT Processing bins done
 	 * : LEDs indicator for air quality
 	 * : Default network: Sensor community
 	 * : Different modes for outside and inside (check solar?)
@@ -212,26 +222,15 @@ int main(void)
   SetVerboseLevel(VERBOSE_ALL);
   BinaryReleaseInfo();
   InitClock(&hrtc);
+  Debug("Clock init done");
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
-  //===========
+
   if (!soundInit(&hdma_spi2_rx, &hi2s2, &htim6, DMA1_Channel4_5_6_7_IRQn))
   {
       errorHandler(__func__, __LINE__, __FILE__);
   }
-  //============================
+
   Gadget_Init(&hi2c1, &hi2s2, &huart4, &hadc);
-
-//  if (!enableMicrophone(true))
-//    {
-//      errorHandler(__func__, __LINE__, __FILE__);
-//    }
-
-//  SoundData_t soundData = {0};
-
-//  if (!startSPLcalculation())
-//  {
-//    errorHandler(__func__, __LINE__, __FILE__);
-//  }
 
   /* USER CODE END 2 */
 
@@ -251,19 +250,6 @@ int main(void)
     if(TimestampIsReached(batteryReadTimer)){
       charge = Battery_Upkeep();
       batteryReadTimer  = HAL_GetTick() + 60000;
-      RTC_GetTime(&hrtc, &lasthour, &lastminute, &lastsecond);
-      if (myUptimeminute != lastminute) {
-        myUptimeminute++;
-      }
-      if (myUptimeminute == 60) {
-        myUptimeminute = 0;
-        myUptimehour++;
-        if (myUptimehour == 24) {
-          myUptimehour = 0;
-          myUptimeday++;
-        }
-        printf("Systemuptime is: %d days %02d:%02d\r\n", myUptimeday, myUptimehour, myUptimeminute);
-      }
     }
     if(charge == BATTERY_LOW || charge == BATTERY_CRITICAL){
 
@@ -277,14 +263,34 @@ int main(void)
     if(charge == BATTERY_FULL){
 
     }
-//    if(TimestampIsReached(LedBlinkTimestamp)) {
+
+    if(TimestampIsReached(timeReadTimer)){
+      timeReadTimer  = HAL_GetTick() + 30000;
+      RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
+      printf("Uptime timestamp reached ±30 sec interval: %02d:%02d:%02d\r\n", lasthour, lastminute, lastsecond);
+      if (iMinute != lastminute) {
+        iMinute = lastminute;
+        myUptimeminute++;
+        printf("Systemuptime is: %d days %02d:%02d\r\n", myUptimeday, myUptimehour, myUptimeminute);
+      }
+      if (myUptimeminute == 60) {
+        myUptimeminute = 0;
+        myUptimehour++;
+        if (myUptimehour == 24) {
+          myUptimehour = 0;
+          myUptimeday++;
+        }
+      }
+    }
+
+    //    if(TimestampIsReached(LedBlinkTimestamp)) {
 //      // Red LED
 //
 //      LedBlinkTimestamp = HAL_GetTick() + LED_BLINK_INTERVAL;
 //    }
 
     // Optional colours:
-    // Red, Yellow, Magenta, White, Cyan, Blue, Green.
+    // Red, Yellow, Magenta, White, Cyan, Blue, Green.  black ;)
 
     /* USER CODE END WHILE */
 
@@ -364,12 +370,24 @@ void printString(const char * str, uint16_t length)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
-  if (u1_rx_buff[0] == (uint8_t)'?') {
-    RTC_GetTime(&hrtc, &lasthour, &lastminute, &lastsecond);
-    printf("=== System time: %02d:%02d:%02d, system uptime is: %d days %02d:%02d ===\r\n", lasthour, lastminute, lastsecond, myUptimeday, myUptimehour, myUptimeminute);
+  switch (u1_rx_buff[0]){
+
+  case (uint8_t)'?':
+    RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
+    printf("System time: %02d-%02d-%02d %02d:%02d:%02d, system uptime is: %dD %02d:%02d\r\n", year, month, day, lasthour, lastminute, lastsecond, myUptimeday, myUptimehour, myUptimeminute);
+    break;
+  case (uint8_t)'t':
+    forceNTPupdate();
+  break;
+  default:
+     printf("Error unknown request\r\n");
+  break;
   }
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt
 }
+
+
+
 /* USER CODE END 4 */
 
 /**

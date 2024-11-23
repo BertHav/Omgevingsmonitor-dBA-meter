@@ -81,6 +81,9 @@ typedef struct {
     bool* doneFlag;
 } ATCommandsParameters;
 
+void forceNTPupdate() {
+  ESPNTPTimeStamp = 0;
+}
 void setCharges(){
   batteryCharge = ReadBatteryVoltage();
   solarCharge = ReadSolarVoltage();
@@ -199,7 +202,7 @@ void uint8ArrayToString(char *destination, uint8_t data[])
   }
 }
 uint16_t CreateMessage(bool onBeurs){
-  uint16_t messageLength = 0;
+//  uint16_t messageLength = 0;
   static char Buffer[25];
   static uint8_t tempConfig[IdSize];
   static uint8_t humidConfig[IdSize];
@@ -1051,7 +1054,7 @@ ESP_States ESP_Upkeep(void) {
         else if (Mode == AT_MODE_GETTIME) {
             setTime = false;
             ESPNTPTimeStamp = HAL_GetTick()+ESP_UNTIL_NEXT_NTP; // every 4 hour
-            Debug("NTP should be called at: %lu", ESPNTPTimeStamp);
+            Debug("next NTP should be called at tick: %lu", ESPNTPTimeStamp);
             ESPTimeStamp = savedESPTimeStamp;
             ResetESPIndicator();
             clearDMABuffer();

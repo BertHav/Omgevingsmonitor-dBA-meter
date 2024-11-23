@@ -157,6 +157,7 @@ void setMeasurement(float temp, float humid, uint16_t voc);
 void setMic(float dB);
 void SetConfigMode();
 void ESP_GetHT(float temp, float humid);
+void forceNTPupdate();
 
 #endif /* INC_ESP_H_ */
 

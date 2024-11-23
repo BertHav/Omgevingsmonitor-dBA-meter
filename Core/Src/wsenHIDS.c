@@ -173,7 +173,7 @@ bool HIDS_GetMeasurementValues(float* humidity, float* temperature) {
   // TODO: Store last measurement humidity for sgp40 measurement.
   if(MeasurementDone) return true;
   if(!HIDS_MeasurementReady()) return false;
-  uint32_t amountOfMeasurements = HIDS_MeasurementDuration / HIDS_Interval_ms;
+//  uint32_t amountOfMeasurements = HIDS_MeasurementDuration / HIDS_Interval_ms;
   static uint32_t measurements = 0;
   float currentTemperature;
   float currentHumidity;
