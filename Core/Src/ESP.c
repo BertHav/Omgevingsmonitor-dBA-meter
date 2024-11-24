@@ -296,6 +296,7 @@ void StartProg(){
   char * ParsePoint = 0;
   const char OK[] = AT_RESPONSE_OK;
   const char ERROR[] = AT_RESPONSE_ERROR;
+  const char FAIL[] = AT_RESPONSE_FAIL;
   const char ready[] = AT_RESPONSE_READY;
   const char start[] = AT_RESPONSE_START;
   const char WIFI[] = AT_RESPONSE_WIFI;
@@ -316,6 +317,7 @@ void StartProg(){
   char *ParsePoint2 = strstr(tempBuf, ERROR);
   char *ParsePoint3 = strstr(tempBuf, WIFI);
   char *ParsePoint4 = strstr(tempBuf, SSIDBeurs);
+  char *ParsePoint5 = strstr(tempBuf, FAIL);
   if(len > 1 ){
     if(ParsePoint != 0 && *ParsePoint == 'O'){
 // TODO: Bert call function to update time in realtimeclock.c
@@ -330,16 +332,16 @@ void StartProg(){
         }
       }
     }
-    if(ParsePoint != 0 && *ParsePoint == 'r'){
+    if(ParsePoint != 0 && *ParsePoint == 'r') {
       status = RECEIVE_STATUS_READY;
     }
-    if(ParsePoint != 0 && *ParsePoint == '>'){
+    if(ParsePoint != 0 && *ParsePoint == '>') {
       status = RECEIVE_STATUS_START;
     }
-    if(ParsePoint != 0 && *ParsePoint == '+'){
+    if(ParsePoint != 0 && *ParsePoint == '+') {
       status = RECEIVE_STATUS_TIME;
     }
-    if(ParsePoint2 != 0 && *ParsePoint2 == 'E'){
+    if((ParsePoint2 != 0 && *ParsePoint2 == 'E') || (ParsePoint5 != 0 && *ParsePoint5 == 'F')) {
       status = RECEIVE_STATUS_ERROR;
     }
     if(ParsePoint3 != 0 && *ParsePoint3 == 'W'){
@@ -585,7 +587,7 @@ Receive_Status DMA_ProcessBuffer(uint8_t expectation) {
       pos = ESP_MAX_BUFFER_SIZE;
     }
     if(pos == OldPos){
-      if(retry >9){
+      if(retry > 30){
         retry = 0;
         //EspState = ESP_STATE_SEND;
         if(ATCommand == AT_WAKEUP && testRound == true){

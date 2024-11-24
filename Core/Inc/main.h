@@ -99,7 +99,7 @@ void Error_Handler(void);
 #define MCU_LED_C_B_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define SRC_VERSION "2.20 BH"
+#define SRC_VERSION "2.22 BH"
 #define LED_BLINK_INTERVAL 1000
 void SetTestDone();
 /* USER CODE END Private defines */

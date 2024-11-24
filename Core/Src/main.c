@@ -83,8 +83,6 @@
   uint32_t timeReadTimer = 0;
   uint32_t sleepTime = 0;
   uint16_t size = 0;
-  char timeData[15];
-  char dateData[15];
 
   Battery_Status charge;
   ESP_States ESP_Status;
