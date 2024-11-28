@@ -66,17 +66,6 @@
   bool batteryEmpty = false;
   bool MeasurementBusy;
   uint8_t RxData[UART_CDC_DMABUFFERSIZE] = {0};
-  uint8_t iMinute = 0;
-  uint8_t lasthour = 0;
-  uint8_t lastminute = 0;
-  uint8_t lastsecond = 0;
-  uint8_t weekday;
-  uint8_t day;
-  uint8_t month;
-  uint8_t year;
-  uint8_t myUptimeminute = 0;
-  uint8_t myUptimehour = 0;
-  uint16_t myUptimeday = 0;
   uint16_t IndexRxData = 0;
   uint32_t LastRxTime = 0;
   uint32_t batteryReadTimer = 0;
@@ -219,16 +208,16 @@ int main(void)
   //uint32_t LedBlinkTimestamp = HAL_GetTick() + LED_BLINK_INTERVAL;
   SetVerboseLevel(VERBOSE_ALL);
   BinaryReleaseInfo();
-  InitClock(&hrtc);
-  Debug("Clock init done");
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
-
+  InitClock(&hrtc);
   if (!soundInit(&hdma_spi2_rx, &hi2s2, &htim6, DMA1_Channel4_5_6_7_IRQn))
   {
       errorHandler(__func__, __LINE__, __FILE__);
   }
 
   Gadget_Init(&hi2c1, &hi2s2, &huart4, &hadc);
+  setiMinute();
+  Debug("Clock init done");
 
   /* USER CODE END 2 */
 
@@ -263,22 +252,8 @@ int main(void)
     }
 
     if(TimestampIsReached(timeReadTimer)){
+      UpdateSystemUptime();
       timeReadTimer  = HAL_GetTick() + 30000;
-      RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
-      printf("Uptime timestamp reached ±30 sec interval: %02d:%02d:%02d\r\n", lasthour, lastminute, lastsecond);
-      if (iMinute != lastminute) {
-        iMinute = lastminute;
-        myUptimeminute++;
-        printf("Systemuptime is: %d days %02d:%02d\r\n", myUptimeday, myUptimehour, myUptimeminute);
-      }
-      if (myUptimeminute == 60) {
-        myUptimeminute = 0;
-        myUptimehour++;
-        if (myUptimehour == 24) {
-          myUptimehour = 0;
-          myUptimeday++;
-        }
-      }
     }
 
     //    if(TimestampIsReached(LedBlinkTimestamp)) {
@@ -314,7 +289,7 @@ void SystemClock_Config(void)
   /** Configure LSE Drive Capability
   */
   HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_MEDIUMHIGH);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -371,14 +346,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   switch (u1_rx_buff[0]){
 
   case (uint8_t)'?':
-    RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
-    printf("System time: %02d-%02d-%02d %02d:%02d:%02d, system uptime is: %dD %02d:%02d\r\n", year, month, day, lasthour, lastminute, lastsecond, myUptimeday, myUptimehour, myUptimeminute);
+    showTime();
     break;
   case (uint8_t)'t':
     forceNTPupdate();
   break;
   default:
-     printf("Error unknown request\r\n");
+     Error("Error unknown request from Serial UART1\r\n");
   break;
   }
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt

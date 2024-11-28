@@ -9,7 +9,7 @@
 
 // Default verbose level
 VerboseLevel CurrentVerboseLevel = VERBOSE_ALL;
-#define TEXTBUFFER_LEN 80
+#define TEXTBUFFER_LEN 128
 
 extern UART_HandleTypeDef huart1;
 
@@ -80,7 +80,7 @@ void BinaryReleaseInfo() {
   Info("=-=-=-=-=-=WOTS Gadget started.=-=-=-=-=-=");
   Info("Build on: %s at %s", __DATE__, __TIME__);
   // Format: YY'w'WWv
-  Info("Git: 24w47");
+  Info("Git: 24w48");
   Info("Software version: %s", SRC_VERSION);
 }
 

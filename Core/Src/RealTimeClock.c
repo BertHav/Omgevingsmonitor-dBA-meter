@@ -14,6 +14,47 @@ static Clock RealTime = {.Hours = 0, .Minutes = 0, .Seconds = 0};
 static const char *dayNames[7] = {  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // 1 to 7
 static const char *monthNames[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}; // 1 to 12
 static RTC_HandleTypeDef * RealTime_Handle;
+char systemUptime[16] = {0};
+
+uint8_t iMinute = 0;
+uint8_t lasthour = 0;
+uint8_t lastminute = 0;
+uint8_t lastsecond = 0;
+uint8_t weekday;
+uint8_t day;
+uint8_t month;
+uint8_t year;
+uint8_t myUptimeminute = 0;
+uint8_t myUptimehour = 0;
+uint16_t myUptimeday = 0;
+
+void showTime() {
+  RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
+  printf("System time: %02d-%02d-%02d %02dh:%02dm:%02ds, system uptime is: %dd %02dh:%02dm\r\n", year, month, day, lasthour, lastminute, lastsecond, myUptimeday, myUptimehour, myUptimeminute);
+}
+
+void setiMinute() {
+  RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
+  iMinute = lastminute;
+  Debug("iMInute set to: %d", iMinute);
+}
+
+void UpdateSystemUptime() {
+  RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
+  if (iMinute != lastminute) {
+    iMinute = lastminute;
+    myUptimeminute++;
+  }
+  if (myUptimeminute == 60) {
+    myUptimeminute = 0;
+    myUptimehour++;
+    if (myUptimehour == 24) {
+      myUptimehour = 0;
+      myUptimeday++;
+    }
+  }
+  Debug("System uptime is: %dd %02dh:%02dm", myUptimeday, myUptimehour, myUptimeminute);
+}
 
 //  0         1         2         3  3
 //  0         0         0         0  3
@@ -49,6 +90,8 @@ uint8_t aBuff2int(char* aBuff, uint8_t start, uint8_t stop) {
 }
 
 void ParseTime(char* buffer) {
+  RTC_GetTime(&lasthour, &lastminute, &lastsecond, &weekday, &day, &month, &year);
+  Debug("Current time is: %02dh:%02dm:%02ds", lasthour, lastminute, lastsecond);
   uint8_t year, month, day, weekday, hours, minutes, seconds;
   hours = aBuff2int(buffer, 24, 25);
   minutes = aBuff2int(buffer, 27, 28);
@@ -59,7 +102,7 @@ void ParseTime(char* buffer) {
   day = aBuff2int(buffer, 21,22);
   weekday = aBuff2int(buffer, 13, 15);
   RTC_SetDate(weekday, day, month, year);
-  printf("PARSETIME parameters => weekday: %d, year: %d, month: %d, day: %d, hours: %d, minutes: %d, seconds: %d\r\n", weekday, year, month, day, hours, minutes, seconds);
+  Debug("PARSETIME parameters => weekday: %d, year: %d, month: %d, day: %d, hours: %d, minutes: %d, seconds: %d", weekday, year, month, day, hours, minutes, seconds);
 }
 
 // Functie om de tijd in te stellen
@@ -75,7 +118,7 @@ void RTC_SetTime(uint8_t hours, uint8_t minutes, uint8_t seconds) {
     
     if (HAL_RTC_SetTime(RealTime_Handle, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
-      Debug("Error setting time to RTC");
+      Error("Error setting time to RTC");
     }
 }
 
@@ -90,7 +133,7 @@ void RTC_SetDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t year) {
 
     if (HAL_RTC_SetDate(RealTime_Handle, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
-      Debug("Error setting date to RTC");
+      Error("Error setting date to RTC");
     }
 }
 
@@ -100,10 +143,10 @@ void RTC_GetTime(uint8_t *hours, uint8_t *minutes, uint8_t *seconds, uint8_t *we
     RTC_DateTypeDef gDate = {0};
 
     if (HAL_RTC_GetTime(RealTime_Handle, &gTime, RTC_FORMAT_BIN) != HAL_OK) {
-      Debug("Error getting time from RTC");
+      Error("Error getting time from RTC");
     }
     if (HAL_RTC_GetDate(RealTime_Handle, &gDate, RTC_FORMAT_BIN) != HAL_OK) {
-      Debug("Error getting date from RTC");
+      Error("Error getting date from RTC");
     }
     *hours = gTime.Hours;
     *minutes = gTime.Minutes;
@@ -126,6 +169,7 @@ void RTC_SetAlarm(uint8_t hours, uint8_t minutes, uint8_t seconds) {
 
     if (HAL_RTC_SetAlarm_IT(RealTime_Handle, &sAlarm, RTC_FORMAT_BIN) != HAL_OK) {
         // Foutafhandeling
+      Error("Error activating interrupt voor RTC Alarm time");
     }
 }
 
@@ -167,5 +211,5 @@ void Enter_Stop_Mode(void)
 
 void InitClock(RTC_HandleTypeDef* h_hrtc){
   RealTime_Handle = h_hrtc;
-  RTC_SetTime(RealTime.Hours, RealTime.Minutes, RealTime.Seconds);
+//  RTC_SetTime(RealTime.Hours, RealTime.Minutes, RealTime.Seconds);
 }

@@ -158,10 +158,14 @@ void ESP_Init(UART_HandleTypeDef* espUart) {
 }
 
 static bool ESP_Send(uint8_t* command, uint16_t length) {
-  printf("ESP_Send: %s\r\n", command);
+#ifdef LONGMESSAGES
+  printf("ESP_Send: %s", command);
+#else
+  Debug("ESP_Send: %s", command);
+#endif
   HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(EspUart, command, length);
   if (status != HAL_OK) {
-    Debug("Error in HAL_UART_Transmit_DMA");
+    Error("Error in HAL_UART_Transmit_DMA");
     return false;
   }
   return true;
@@ -171,7 +175,7 @@ static bool ESP_Receive(uint8_t* reply, uint16_t length) {
   RxComplete = false;
   HAL_StatusTypeDef status = HAL_UART_Receive_DMA(EspUart, reply, length);
   if (status != HAL_OK) {
-    Debug("Error in HAL_UART_Receive_DMA. errorcode: %d", EspUart->ErrorCode);
+    Error("Error in HAL_UART_Receive_DMA. errorcode: %d", EspUart->ErrorCode);
     RxComplete = true;
     return false;
   }
@@ -241,7 +245,7 @@ uint16_t CreateMessage(bool onBeurs){
   index = strlen(message);
 
   uint8ArrayToString(Buffer, soundConfig);
-  sprintf(&message[index], "{\"name\":\"Sound\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.2f, \"unit\":\"dBc\"},", uid[2], (char*)nameConfig, Buffer, dBC);
+  sprintf(&message[index], "{\"name\":\"Sound\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.2f, \"unit\":\"dB(A)\"},", uid[2], (char*)nameConfig, Buffer, dBC);
   index = strlen(message);
 
   uint8ArrayToString(Buffer, vocConfig);
@@ -263,8 +267,8 @@ uint16_t CreateMessage(bool onBeurs){
     index = strlen(message);
   }
 
+  Debug("Length of datagram: %d", index);
   index = sprintf(&message[index], "]");
-
   return strlen(message);
 }
 
@@ -292,7 +296,11 @@ void StartProg(){
     tempBuf[i] = (char)buffer[i];
   }
   tempBuf[len] = '\0';
+#ifdef LONGMESSAGES
   printf("Receive ParseBuffer: %s", tempBuf );
+#else
+  Debug("Receive ParseBuffer: %s", tempBuf );
+#endif
   char * ParsePoint = 0;
   const char OK[] = AT_RESPONSE_OK;
   const char ERROR[] = AT_RESPONSE_ERROR;
@@ -320,14 +328,14 @@ void StartProg(){
   char *ParsePoint5 = strstr(tempBuf, FAIL);
   if(len > 1 ){
     if(ParsePoint != 0 && *ParsePoint == 'O'){
-// TODO: Bert call function to update time in realtimeclock.c
+// call function to update time in realtimeclock.c
       status = RECEIVE_STATUS_OK;
       if ( ATCommand == AT_CIPSNTPTIME ) {
-        if ((len == 43) && (tempBuf[33] == '2' )) {
+        if ((len == 43) && (tempBuf[33] == '2' )) {  // validity check
           ParseTime(tempBuf);
         }
         else {
-          Debug("Error getting time\r\n");
+          Error("Error getting time");
           return RECEIVE_STATUS_TIMEOUT;
         }
       }
@@ -628,7 +636,7 @@ Receive_Status DMA_ProcessBuffer(uint8_t expectation) {
                   status = ParseBuffer(&RxBuffer[0], pos, expectation);
               }
           }
-          printf("RxBuffer OldPos: %d, pos: %d\r\n", OldPos, pos);
+          Debug("DMA ESP RxBuffer OldPos: %d, pos: %d", OldPos, pos);
           OldPos = pos;
         }
       }
@@ -880,7 +888,7 @@ ESP_States ESP_Upkeep(void) {
   if (EspState != oldEspState) {
     oldEspState = EspState;
     if (!((oldEspState == 3) && (ATCommand == AT_HTTPCPOST)) ) {
-      printf("EspState: %d ATcmd: %d Mode: %d ATExp: %d\r\n", oldEspState, ATCommand, Mode, ATExpectation);
+      Debug("EspState: %d ATcmd: %d Mode: %d ATExp: %d", oldEspState, ATCommand, Mode, ATExpectation);
     }
   }
 
@@ -960,7 +968,6 @@ ESP_States ESP_Upkeep(void) {
         ATCounter = 0;
         Mode = AT_MODE_SEND;
         start = HAL_GetTick();
-        printf("start van HAL_GetTick(): %lu\r\n", start);
         SetESPIndicator();
         ATCommand = ATCommandArray[ATCounter];
         ATExpectation = RECEIVE_EXPECTATION_OK;
@@ -979,6 +986,7 @@ ESP_States ESP_Upkeep(void) {
         EspState = ESP_STATE_SEND;
         ATCounter = 0;
         Mode = AT_MODE_GETTIME;
+        start = HAL_GetTick();
         SetESPIndicator();
         ATCommand = ATCommandArray[ATCounter];
         ATExpectation = RECEIVE_EXPECTATION_OK;
@@ -1049,18 +1057,18 @@ ESP_States ESP_Upkeep(void) {
           ResetESPIndicator();
           clearDMABuffer();
           stop = HAL_GetTick();
-          printf("stop van HAL_GetTick(): %lu\r\n", stop);
           Debug("Message send in %lu ms", (stop-start));
           EspState = ESP_STATE_DEINIT;
         }
         else if (Mode == AT_MODE_GETTIME) {
             setTime = false;
             ESPNTPTimeStamp = HAL_GetTick()+ESP_UNTIL_NEXT_NTP; // every 4 hour
-            Debug("next NTP should be called at tick: %lu", ESPNTPTimeStamp);
+            Debug("Time synchronized by NTP, next NTP should be called at tick: %lu", ESPNTPTimeStamp);
             ESPTimeStamp = savedESPTimeStamp;
             ResetESPIndicator();
             clearDMABuffer();
-            Debug("time synchronized by NTP");
+            stop = HAL_GetTick();
+            Debug("Message time update in %lu ms", (stop-start));
             EspState = ESP_STATE_DEINIT;
             Mode = AT_MODE_SEND;
           }

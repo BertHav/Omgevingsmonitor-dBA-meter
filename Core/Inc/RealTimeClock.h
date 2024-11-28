@@ -5,8 +5,20 @@
 #include "stm32l0xx_hal_rcc.h"
 #include "utils.h"
 
+
+extern uint8_t lasthour;
+extern uint8_t lastminute;
+extern uint8_t lastsecond;
+extern uint8_t weekday;
+extern uint8_t day;
+extern uint8_t month;
+extern uint8_t year;
+
 void ParseTime(char* buffer);
 // Functies voor het instellen en uitlezen van de tijd
+void showTime();
+void setiMinute();
+void UpdateSystemUptime();
 void RTC_SetTime(uint8_t hours, uint8_t minutes, uint8_t seconds);
 
 // Functies voor het instellen en uitlezen van de datum

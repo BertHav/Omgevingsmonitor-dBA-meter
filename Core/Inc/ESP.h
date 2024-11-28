@@ -17,6 +17,7 @@
 #include "PC_Config.h"
 #include "statusCheck.h"
 
+#define LONGMESSAGES true
 #define ESP_MAX_UART_RETRIES 2
 #define ESP_MAX_BUFFER_SIZE 256
 #define ESP_TX_BUFFER_SIZE 512
