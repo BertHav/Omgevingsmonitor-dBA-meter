@@ -216,7 +216,6 @@ int main(void)
   }
 
   Gadget_Init(&hi2c1, &hi2s2, &huart4, &hadc);
-  setiMinute();
   Debug("Clock init done");
 
   /* USER CODE END 2 */
@@ -250,14 +249,13 @@ int main(void)
     if(charge == BATTERY_FULL){
 
     }
-
     if(TimestampIsReached(timeReadTimer)){
       UpdateSystemUptime();
       timeReadTimer  = HAL_GetTick() + 30000;
     }
 
     //    if(TimestampIsReached(LedBlinkTimestamp)) {
-//      // Red LED
+    // Red LED
 //
 //      LedBlinkTimestamp = HAL_GetTick() + LED_BLINK_INTERVAL;
 //    }
@@ -352,7 +350,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     forceNTPupdate();
   break;
   default:
-     Error("Error unknown request from Serial UART1\r\n");
+     Error("Error unknown request from Serial UART1 (TTY)\r\n");
   break;
   }
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt
@@ -370,6 +368,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+  Error("Trapped in Error_Handler, wait for reset");
   __disable_irq();
   while (1)
   {

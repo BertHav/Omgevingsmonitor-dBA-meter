@@ -17,14 +17,15 @@ extern uint8_t year;
 void ParseTime(char* buffer);
 // Functies voor het instellen en uitlezen van de tijd
 void showTime();
-void setiMinute();
 void UpdateSystemUptime();
-void RTC_SetTime(uint8_t hours, uint8_t minutes, uint8_t seconds);
+//void RTC_SetTime(uint8_t hours, uint8_t minutes, uint8_t seconds);
+void RTC_SetTime(RTC_TimeTypeDef* sTime);
 
 // Functies voor het instellen en uitlezen van de datum
-void RTC_SetDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t year);
-void RTC_GetTime(uint8_t *weekday, uint8_t *day, uint8_t *month, uint8_t *year, uint8_t *hours, uint8_t *minutes, uint8_t *seconds);
-
+//void RTC_SetDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t year);
+void RTC_SetDate(RTC_DateTypeDef* sDate);
+//void RTC_GetTime(uint8_t *weekday, uint8_t *day, uint8_t *month, uint8_t *year, uint8_t *hours, uint8_t *minutes, uint8_t *seconds);
+void RTC_GetTime(RTC_TimeTypeDef* gTime, RTC_DateTypeDef* gDate);
 // Functie om een alarm in te stellen
 void RTC_SetAlarm(uint8_t hours, uint8_t minutes, uint8_t seconds);
 
