@@ -55,7 +55,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/utils.h ../Core/Inc/measurement.h ../Core/Inc/globals.h \
  ../Core/Inc/ESP.h ../Core/Inc/PowerUtils.h ../Core/Inc/statusCheck.h \
  ../Core/Inc/RealTimeClock.h ../Core/Inc/sound_measurement.h \
- ../Core/Inc/sound_LUTs.h ../Core/Inc/print_functions.h
+ ../Core/Inc/sound_LUTs.h ../Core/Inc/print_functions.h \
+ ../Core/Inc/sen5x.h
 ../Core/Inc/main.h:
 C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
 ../Core/Inc/stm32l0xx_hal_conf.h:
@@ -134,3 +135,4 @@ C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Middlewares/ST/STM32
 ../Core/Inc/sound_measurement.h:
 ../Core/Inc/sound_LUTs.h:
 ../Core/Inc/print_functions.h:
+../Core/Inc/sen5x.h:

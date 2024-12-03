@@ -41,6 +41,7 @@
 #include "RealTimeClock.h"
 #include "sound_measurement.h"
 #include "print_functions.h"
+#include "sen5x.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,6 +66,8 @@
   bool ESP_Programming = false;
   bool batteryEmpty = false;
   bool MeasurementBusy;
+  bool sen5x_Present = false;
+  bool waitforSamples = false;
   uint8_t RxData[UART_CDC_DMABUFFERSIZE] = {0};
   uint16_t IndexRxData = 0;
   uint32_t LastRxTime = 0;
@@ -210,6 +213,7 @@ int main(void)
   BinaryReleaseInfo();
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
   InitClock(&hrtc);
+
   if (!soundInit(&hdma_spi2_rx, &hi2s2, &htim6, DMA1_Channel4_5_6_7_IRQn))
   {
       errorHandler(__func__, __LINE__, __FILE__);
@@ -217,7 +221,11 @@ int main(void)
 
   Gadget_Init(&hi2c1, &hi2s2, &huart4, &hadc);
   Debug("Clock init done");
-
+  if (!probe_sen5x()) {
+    sen5x_Present = true; // not present
+    sen5x_Power_Off();      // switch off buck converter
+    Debug("sen5x sensor not detected, polling disabled.");
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -254,6 +262,9 @@ int main(void)
       timeReadTimer  = HAL_GetTick() + 30000;
     }
 
+    if(sen5x_Present) {
+      sen5x_statemachine();
+    }
     //    if(TimestampIsReached(LedBlinkTimestamp)) {
     // Red LED
 //

@@ -3,6 +3,8 @@
  *
  *  Created on: Sep 4, 2024
  *      Author: andri
+ *
+ *      dec 1, 2024 functions buck power converter for SEN5x added
  */
 
 
@@ -110,10 +112,6 @@ bool PulledDownStatus = false ;
   }
   return CHARGING_OFF;
 }
-
-
-
-
 
 /* Button operations
  * User Button A  ( Boot0 PIN )

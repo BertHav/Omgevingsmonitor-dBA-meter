@@ -1,6 +1,6 @@
-../Core/Src/PowerUtils.c:19:7:ReadBatteryVoltage	8	static
-../Core/Src/PowerUtils.c:45:7:ReadSolarVoltage	8	static
-../Core/Src/PowerUtils.c:70:8:Check_USB_PowerOn	8	static
-../Core/Src/PowerUtils.c:81:14:Read_Charge_Status	16	static
-../Core/Src/PowerUtils.c:127:10:BootButton_Pressed	8	static
-../Core/Src/PowerUtils.c:132:10:UserButton_Pressed	8	static
+../Core/Src/PowerUtils.c:21:7:ReadBatteryVoltage	8	static
+../Core/Src/PowerUtils.c:47:7:ReadSolarVoltage	8	static
+../Core/Src/PowerUtils.c:72:8:Check_USB_PowerOn	8	static
+../Core/Src/PowerUtils.c:83:14:Read_Charge_Status	16	static
+../Core/Src/PowerUtils.c:125:10:BootButton_Pressed	8	static
+../Core/Src/PowerUtils.c:130:10:UserButton_Pressed	8	static
