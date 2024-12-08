@@ -53,7 +53,7 @@ Core/Src/ESP.o: ../Core/Src/ESP.c ../Core/Inc/ESP.h \
  ../Core/Inc/EEprom.h \
  C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_flash_ex.h \
  ../Core/Inc/Config.h ../Core/Inc/PowerUtils.h ../Core/Inc/cred.h \
- ../Core/Inc/RealTimeClock.h
+ ../Core/Inc/RealTimeClock.h ../Core/Inc/sen5x.h
 ../Core/Inc/ESP.h:
 C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
 ../Core/Inc/stm32l0xx_hal_conf.h:
@@ -119,3 +119,4 @@ C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HA
 ../Core/Inc/PowerUtils.h:
 ../Core/Inc/cred.h:
 ../Core/Inc/RealTimeClock.h:
+../Core/Inc/sen5x.h:

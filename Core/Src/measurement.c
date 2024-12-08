@@ -24,7 +24,7 @@ typedef struct {
     bool HT_measurementDone;
     bool VOC_measurementDone;
     bool PM_measurementDone;
-    bool MIC_measurementDone;
+//    bool MIC_measurementDone;
 } MeasurementContext;
 
 uint32_t StartTiming = 0;
@@ -184,7 +184,7 @@ void ResetMeasurements(void) {
   MeasurementCtx.HT_measurementDone = false;
   MeasurementCtx.VOC_measurementDone = false;
   MeasurementCtx.PM_measurementDone = false;
-  MeasurementCtx.MIC_measurementDone = false;
+//  MeasurementCtx.MIC_measurementDone = false;
 }
 
 bool MeasurementsCompleted(void) {

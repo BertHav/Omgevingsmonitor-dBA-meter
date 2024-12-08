@@ -1,5 +1,6 @@
 #include "rtc.h"
 #include "RealTimeClock.h"
+#include "sen5x.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -27,7 +28,8 @@ void showTime() {
   RTC_DateTypeDef currentDate;
   RTC_GetTime(&currentTime, &currentDate);
   printf("System time: %02d-%02d-%02d %02dh:%02dm:%02ds, system uptime is: %dd %02dh:%02dm\r\n",
-      currentDate.Year, currentDate.Month, currentDate.Date, currentTime.Hours, currentTime.Minutes, currentTime.Seconds, myUptimeday, myUptimehour, myUptimeminute);
+      currentDate.Year, currentDate.Month, currentDate.Date, currentTime.Hours, currentTime.Minutes,
+      currentTime.Seconds, myUptimeday, myUptimehour, myUptimeminute);
 }
 
 void setiMinute(uint8_t minute) {
@@ -51,7 +53,8 @@ void UpdateSystemUptime() {
       myUptimeday++;
     }
   }
-  Debug("System uptime is: %dd %02dh:%02dm", myUptimeday, myUptimehour, myUptimeminute);
+  Info("Current time is: %02d:%02d:%02d System uptime is: %dd %02dh:%02dm",
+      currentTime.Hours, currentTime.Minutes, currentTime.Seconds, myUptimeday, myUptimehour, myUptimeminute);
 }
 
 //  0         1         2         3  3
@@ -101,6 +104,9 @@ void ParseTime(char* buffer) {
   Debug("Current RTC time before update is: %02dh:%02dm:%02ds", currentTime.Hours , currentTime.Minutes, currentTime.Seconds);
   RTC_SetTime(&currentTime);
   RTC_SetDate(&currentDate);
+  if (currentDate.WeekDay == 2) {
+    reset_fanCleaningDone();
+  }
 //  Debug("PARSETIME parameters => weekday: %d, year: %d, month: %d, day: %d, hours: %d, minutes: %d, seconds: %d", weekday, year, month, day, hours, minutes, seconds);
 }
 
@@ -136,6 +142,13 @@ void RTC_GetTime(RTC_TimeTypeDef* gTime, RTC_DateTypeDef* gDate) {
     if (HAL_RTC_GetDate(RealTime_Handle, gDate, RTC_FORMAT_BIN) != HAL_OK) {
       Error("Error getting date from RTC");
     }
+}
+
+uint8_t RTC_GetWeekday(void) {
+  RTC_TimeTypeDef currentTime;
+  RTC_DateTypeDef currentDate;
+  RTC_GetTime(&currentTime, &currentDate);
+  return currentDate.WeekDay;
 }
 
 // Functie om een alarm in te stellen

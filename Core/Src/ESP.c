@@ -13,7 +13,8 @@
 #include "PowerUtils.h"
 #include "cred.h"
 #include "RealTimeClock.h"
-
+#include "sen5x.h"
+#include <stdint.h>
 
 static UART_HandleTypeDef* EspUart = NULL;
 extern DMA_HandleTypeDef hdma_usart4_rx;
@@ -44,12 +45,14 @@ static uint8_t oldEspState = 255;
 //static bool measurementDone = false;
 //static const char SSIDBeurs[] = "25ac316853";
 //static const char PasswordBeurs[] = "HalloDitIsDeWifi!2024";
-float Temperature = 0;
-float Humidity = 0;
-float batteryCharge = 0;
-float solarCharge = 0;
+float Temperature = 0.0;
+float Humidity = 0.0;
+float batteryCharge = 0.0;
+float solarCharge = 0.0;
 uint16_t VOCIndex = 0;
-float dBC = 0;
+float dBC = 0.0;
+float airPM2 = 0.0;
+float airPM10 = 0.0;
 static char message[1024];
 static const char APIBeurs[] = "\"https://deomgevingsmonitor.nl//api/set_device_data.php\"";
 static const char API[] = "\"https://api.opensensemap.org/boxes/";
@@ -123,6 +126,11 @@ void setMic(float dB){
   dBC = dB;
 }
 
+void setPMs(uint16_t PM2, uint16_t PM10) {
+  airPM2 = PM2 / 10.0f;
+  airPM10 = PM10 / 10.0f;
+}
+
 void SetConfigMode(){
   ReconfigSet = true;
 }
@@ -159,7 +167,7 @@ void ESP_Init(UART_HandleTypeDef* espUart) {
 
 static bool ESP_Send(uint8_t* command, uint16_t length) {
 #ifdef LONGMESSAGES
-  printf("ESP_Send: %s", command);
+  printf("ESP_Send: %s\r\n", command);
 #else
   Debug("ESP_Send: %s", command);
 #endif
@@ -214,6 +222,8 @@ uint16_t CreateMessage(bool onBeurs){
   static uint8_t vocConfig[IdSize];
   static uint8_t batteryConfig[IdSize];
   static uint8_t solarConfig[IdSize];
+  static uint8_t PM2Config[IdSize];
+  static uint8_t PM10Config[IdSize];
   static uint8_t nameConfig[CustomNameMaxLength];
   ReadUint8ArrayEEprom(TempConfigAddr, tempConfig, IdSize);
   ReadUint8ArrayEEprom(HumidConfigAddr, humidConfig, IdSize);
@@ -221,6 +231,8 @@ uint16_t CreateMessage(bool onBeurs){
   ReadUint8ArrayEEprom(VocIndexConfigAddr, vocConfig, IdSize);
   ReadUint8ArrayEEprom(BatVoltConfigAddr, batteryConfig, IdSize);
   ReadUint8ArrayEEprom(SolVoltConfigAddr, solarConfig, IdSize);
+  ReadUint8ArrayEEprom(PM2ConfigAddr, PM2Config, IdSize);
+  ReadUint8ArrayEEprom(PM10ConfigAddr, PM10Config, IdSize);
   if(checkName()){
     ReadUint8ArrayEEprom(CustomNameConfigAddr, nameConfig, CustomNameMaxLength);
   }
@@ -258,8 +270,17 @@ uint16_t CreateMessage(bool onBeurs){
     index = strlen(message);
 
     uint8ArrayToString(Buffer, solarConfig);
-    sprintf(&message[index], "{\"name\":\"solar voltage\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.2f, \"unit\":\"V\"}", uid[2], (char*)nameConfig, Buffer, solarCharge);
+    sprintf(&message[index], "{\"name\":\"Solar voltage\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.2f, \"unit\":\"V\"},", uid[2], (char*)nameConfig, Buffer, solarCharge);
     index = strlen(message);
+
+    uint8ArrayToString(Buffer, PM2Config);
+    sprintf(&message[index], "{\"name\":\"PM2.5\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.1f, \"unit\":\"µg/m3\"},", uid[2], (char*)nameConfig, Buffer, airPM2);
+    index = strlen(message);
+
+    uint8ArrayToString(Buffer, PM10Config);
+    sprintf(&message[index], "{\"name\":\"PM10\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.1f, \"unit\":\"µg/m3\"}", uid[2], (char*)nameConfig, Buffer, airPM10);
+    index = strlen(message);
+
   }
   else{
     uint8ArrayToString(Buffer, batteryConfig);
@@ -1105,6 +1126,7 @@ ESP_States ESP_Upkeep(void) {
         }
         if(Mode == AT_MODE_RECONFIG){
           EspState = ESP_STATE_CONFIG;
+          Debug("Do nothing until reset");
         }
         if(Mode == AT_MODE_TEST){
           EspState = ESP_STATE_MODE_SELECT;
@@ -1124,7 +1146,7 @@ ESP_States ESP_Upkeep(void) {
       break;
 
     case ESP_STATE_CONFIG:
-      Debug("Do nothing until reset");
+//      Debug("Do nothing until reset");
       Process_PC_Config(GetUsbRxPointer());
       break;
 

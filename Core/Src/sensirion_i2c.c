@@ -32,7 +32,7 @@
 #include "sensirion_i2c.h"
 #include "sensirion_common.h"
 #include "sensirion_config.h"
-#include "main.h"
+#include "sen5x.h"
 
 uint8_t sensirion_i2c_generate_crc(const uint8_t* data, uint16_t count) {
     uint16_t current_byte;

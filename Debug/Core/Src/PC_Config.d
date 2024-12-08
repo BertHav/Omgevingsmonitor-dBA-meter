@@ -50,7 +50,7 @@ Core/Src/PC_Config.o: ../Core/Src/PC_Config.c \
  C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/Src/../Inc/EEProm.h \
  C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_flash_ex.h \
- ../Core/Src/../Inc/Config.h
+ ../Core/Src/../Inc/Config.h ../Core/Inc/utils.h
 ../Core/Src/../Inc/PC_Config.h:
 C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
 ../Core/Inc/stm32l0xx_hal_conf.h:
@@ -104,3 +104,4 @@ C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Middlewares/ST/STM32
 ../Core/Src/../Inc/EEProm.h:
 C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_flash_ex.h:
 ../Core/Src/../Inc/Config.h:
+../Core/Inc/utils.h:

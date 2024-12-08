@@ -38,7 +38,7 @@ Core/Src/RealTimeClock.o: ../Core/Src/RealTimeClock.c ../Core/Inc/rtc.h \
  C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pcd.h \
  C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_usb.h \
  C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pcd_ex.h \
- ../Core/Inc/RealTimeClock.h ../Core/Inc/utils.h
+ ../Core/Inc/RealTimeClock.h ../Core/Inc/utils.h ../Core/Inc/sen5x.h
 ../Core/Inc/rtc.h:
 ../Core/Inc/main.h:
 C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
@@ -81,3 +81,4 @@ C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HA
 C:/Users/itsme/STM32Cube/Repository/STM32Cube_FW_L0_V1.12.2/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pcd_ex.h:
 ../Core/Inc/RealTimeClock.h:
 ../Core/Inc/utils.h:
+../Core/Inc/sen5x.h:

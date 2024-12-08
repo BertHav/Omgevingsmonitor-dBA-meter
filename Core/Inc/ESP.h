@@ -17,7 +17,7 @@
 #include "PC_Config.h"
 #include "statusCheck.h"
 
-#define LONGMESSAGES true  // show long messages f.i. the datagram
+//#define LONGMESSAGES true  // show long messages f.i. the datagram
 #define ESP_MAX_UART_RETRIES 2
 #define ESP_MAX_BUFFER_SIZE 256
 #define ESP_TX_BUFFER_SIZE 512
@@ -157,6 +157,7 @@ void ESP_DeInit(void);
 void ESP_WakeTest();
 void setMeasurement(float temp, float humid, uint16_t voc);
 void setMic(float dB);
+void setPMs(uint16_t PM2, uint16_t PM10);
 void SetConfigMode();
 void ESP_GetHT(float temp, float humid);
 void forceNTPupdate();

@@ -262,8 +262,18 @@ int main(void)
       timeReadTimer  = HAL_GetTick() + 30000;
     }
 
-    if(sen5x_Present) {
-      sen5x_statemachine();
+    if(((charge > BATTERY_LOW) || (charge == USB_PLUGGED_IN)) && sen5x_Present) {
+      if  (charge > BATTERY_LOW) {
+        sen5x_statemachine(0);
+      }
+      else {
+        if (charge == USB_PLUGGED_IN) {
+          sen5x_statemachine(USB_PLUGGED_IN);
+        }
+        else  {
+          Info("Battery level insufficient for sen5x operation");
+        }
+      }
     }
     //    if(TimestampIsReached(LedBlinkTimestamp)) {
     // Red LED
@@ -353,15 +363,41 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1);
   switch (u1_rx_buff[0]){
-
-  case (uint8_t)'?':
-    showTime();
+    case (uint8_t)'a':
+      printf("VerboseLevel set to all\r\n");
+      SetVerboseLevel(VERBOSE_ALL);
+      break;
+    case (uint8_t)'f':
+      forceNTPupdate();  // sync the time now
     break;
-  case (uint8_t)'t':
-    forceNTPupdate();
-  break;
-  default:
-     Error("Error unknown request from Serial UART1 (TTY)\r\n");
+    case (uint8_t)'i':
+      printf("VerboseLevel set to info\r\n");
+      SetVerboseLevel(VERBOSE_INFO);
+      break;
+    case (uint8_t)'m':
+      printf("VerboseLevel set to minimal\r\n");
+      SetVerboseLevel(VERBOSE_MINIMAL);
+      break;
+    case (uint8_t)'n':
+      printf("VerboseLevel set to none\r\n");
+      SetVerboseLevel(VERBOSE_NONE);
+      break;
+    case (uint8_t)'s':
+      sen5xReadTimer = HAL_GetTick();  // on request fire up the sen5x
+      break;
+    case (uint8_t)'t':
+      showTime(); // show me the current time
+      break;
+    default:
+      Error("Error unknown request from Serial UART1 (TTY)\r\n");
+      printf("Possible commands:\r\n\r\n");
+      printf("a - VerboseLevel set to all\r\n");
+      printf("f - Force NTP time synchronization\r\n");
+      printf("i - VerboseLevel set to info\r\n");
+      printf("m - VerboseLevel set to minimal\r\n");
+      printf("n - VerboseLevel set to none\r\n");
+      printf("s - Start particle measurement\r\n");
+      printf("t - Show actual systemtime\r\n");
   break;
   }
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt
