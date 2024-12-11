@@ -195,11 +195,9 @@ int main(void)
 	/*
 	 * : Put SSID in EEPROM
 	 * : Turn on heater if humidity is too high
-	 * : NTP sets RTC done
-	 * : FFT Processing bins done
 	 * : LEDs indicator for air quality
 	 * : Default network: Sensor community
-	 * : Different modes for outside and inside (check solar?)
+	 * : Different modes for outside and inside (check solar or check LED on/off mode?)
 	 * : Add CLI via usb-c
 	 * : Network not found? Sleep
 	 */

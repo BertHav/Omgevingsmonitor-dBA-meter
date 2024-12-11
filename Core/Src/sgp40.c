@@ -102,7 +102,7 @@ void SGP_TurnHeaterOff(void) {
 
 bool SGP_GetMeasurementValues(int32_t *vocIndex) {
   if (SGP_HeatedUp() && !HeatUpIsDone && !SGP_MsgSent) {
-    Debug("SGP is heated up, starting the measurement.");
+    Debug("SGP is heated up");
     HeatUpIsDone = true;
     // SGP is heated up, we ignore the output and start another measurement.
     if(HT_MeasurementReceived){
@@ -116,7 +116,7 @@ bool SGP_GetMeasurementValues(int32_t *vocIndex) {
     SGP_MsgSent = true;
   }
   if (HeatUpIsDone && SGP_MeasurementReady() && !MeasurementIsReady) {
-    Debug("SGP_Measurement[%i] is ready, reading buffer.", SGP_AmountOfSamplesDone + 1);
+    Debug("SGP sample[%i] is ready", SGP_AmountOfSamplesDone + 1);
     MeasurementIsReady = true;
     // Measurement is ready to be read, also turning the heater off.
     ReadRegister(SGP_I2C_ADDRESS, SGP_ReadBuffer, SGP_MEASURE_BUFFER_RESPONSE_LENGTH);
@@ -130,7 +130,7 @@ bool SGP_GetMeasurementValues(int32_t *vocIndex) {
     }
     SGP_MeasurementDutyCycle = GetCurrentHalTicks() + SGP_SENSOR_DUTYCYCLE;
     SGP_TurnHeaterOff();
-    SGP_AmountOfSamplesDone += 1;
+    SGP_AmountOfSamplesDone++;
     if (SGP_AmountOfSamplesDone >= SGP_TotalSamples) {
       uint16_t rawSignal = ((SGP_ReadBuffer[1] << 8) | (SGP_ReadBuffer[0]));
       Debug("rawSignal value: %d", rawSignal);
@@ -156,7 +156,7 @@ bool SGP_GetMeasurementValues(int32_t *vocIndex) {
         SetVocLED(Red, Green, Blue);
       }
       SGP_AmountOfSamplesDone = 0;
-      Debug("SGP_Measurement completely done.");
+//      Debug("SGP_Measurement completely done.");
       HT_MeasurementReceived = false;
       SGP_MsgSent = false;
 //      for (uint8_t i = 0; i < SGP_MEASURE_BUFFER_RESPONSE_LENGTH; i++) {

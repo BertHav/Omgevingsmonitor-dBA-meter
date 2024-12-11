@@ -65,6 +65,7 @@ static AT_Commands AT_WIFI_RECONFIG[] = {AT_WAKEUP, AT_CWMODE3, AT_CWSAP, AT_CIP
 static AT_Commands AT_SNTP[] = {AT_WAKEUP, AT_CIPSNTPCFG, AT_CIPSNTPTIME, AT_CIPSNTPINTV};
 uint8_t ATState;
 uint8_t ATCounter = 0;
+static uint8_t errorcntr = 0;
 static uint32_t ESPTimeStamp = 0;
 static uint32_t ESPNTPTimeStamp = 0;
 static uint32_t savedESPTimeStamp = 0;
@@ -242,7 +243,7 @@ uint16_t CreateMessage(bool onBeurs){
   //(char*)nameConfig
   //get name etc from EEprom
   setCharges();
-
+#ifdef LONGDATAGRAM
   memset(message, '\0', 1024);
   uint16_t index = 0;
   sprintf(&message[index], "[");
@@ -287,7 +288,35 @@ uint16_t CreateMessage(bool onBeurs){
     sprintf(&message[index], "{\"name\":\"battery\", \"id\": %ld, \"user\": \"%s\", \"sensor\": \"%s\", \"value\":%.2f, \"unit\":\"V\"}", uid[2], (char*)nameConfig, Buffer, batteryCharge);
     index = strlen(message);
   }
+#else
+  memset(message, '\0', 255);
+    uint16_t index = 0;
+    sprintf(&message[index], "[");
+    index = strlen(message);
 
+
+    sprintf(&message[index], "{\"Temperature\":%.2f},", Temperature);
+    index = strlen(message);
+
+
+    sprintf(&message[index], "{\"Humidity\":%.1f},", Humidity);
+    index = strlen(message);
+
+
+    sprintf(&message[index], "{\"Sound\":%.2f},", dBC);
+    index = strlen(message);
+
+
+    sprintf(&message[index], "{\"VOC\":%d},", VOCIndex);
+    index = strlen(message);
+
+
+    sprintf(&message[index], "{\"BatteryVoltage\":%.2f},", batteryCharge);
+    index = strlen(message);
+
+
+    sprintf(&message[index], "{\"SolarVoltage\":%.2f}", solarCharge);
+#endif
   Debug("Length of datagram: %d", index);
   index = sprintf(&message[index], "]");
   return strlen(message);
@@ -1032,6 +1061,15 @@ ESP_States ESP_Upkeep(void) {
             ATCounter = 1;
           }
           EspState = ESP_STATE_SEND;
+          errorcntr++;
+          if (errorcntr == 4) {
+            ESPTimeStamp = HAL_GetTick() + ESP_UNTIL_NEXT_SEND;
+            ResetESPIndicator();
+            clearDMABuffer();
+            stop = HAL_GetTick();
+            Debug("ESP to many retransmits, terminated after %lu ms", (stop-start));
+            EspState = ESP_STATE_DEINIT;
+          }
         }
         if(ATReceived == RECEIVE_STATUS_INCOMPLETE){
           ESPTimeStamp = HAL_GetTick() + 10;
@@ -1108,6 +1146,7 @@ ESP_States ESP_Upkeep(void) {
       HAL_GPIO_WritePin(ESP32_BOOT_GPIO_Port, ESP32_BOOT_Pin, 0);
       EspState = ESP_STATE_RESET;
       HAL_Delay(1);
+      errorcntr = 0;
       break;
 
     case ESP_STATE_RESET:
@@ -1158,7 +1197,7 @@ ESP_States ESP_Upkeep(void) {
 
     default:
       // Handle unexpected state
-      Debug("Something went wrong");
+      Debug("Something unknown went wrong with the ESP_STATE");
       EspState = ESP_STATE_ERROR;
       break;
   }

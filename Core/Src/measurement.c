@@ -71,22 +71,10 @@ static void PM_StartMeasurementWrapper(void) {
 static bool PM_IsMeasurementDoneWrapper(void) {
   return true;
 }
-/*
-static void MIC_StartMeasurementWrapper(void) {
-  MIC_Start(SAMPLE_RATE_16K, NR_SAMPLES_128);
-}
-*/
-/*
 
 static bool MIC_IsMeasurementDoneWrapper(void) {
   return MIC_MeasurementDone();
 }
-*/
-/*
-void Meas_TestStart(){
-  MIC_StartMeasurementWrapper();
-}
-*/
 
 bool MIC_IsTestMeasurementDoneWrapper(void) {
   return MIC_TestMeasurementDone();
@@ -95,7 +83,6 @@ bool MIC_IsTestMeasurementDoneWrapper(void) {
 void testInit(){
   MeasTest.ESP_Tested = false;
   MeasTest.MIC_Tested = false;
-//  MeasTest.MIC_Tested = true;
   MeasTest.HT_Tested = false;
   MeasTest.VOC_Tested = false;
 }
@@ -212,27 +199,19 @@ MicrophoneState Mic_Upkeep(){
         errorHandler(__func__, __LINE__, __FILE__);
       }
   MicState = MIC_STATE_START_MEASUREMENT;
-//  Info("MIC_STATE_START_MEASUREMENT\r\n");
     break;
 
   case MIC_STATE_START_MEASUREMENT:
-//    MIC_StartMeasurementWrapper();
     if (micSettlingComplete() || DataReady) {
       if (!startSPLcalculation())
       {
-//        Info("startSPLcalculation returns false");
         errorHandler(__func__, __LINE__, __FILE__);
       }
       MicState = MIC_STATE_WAIT_FOR_COMPLETION;
-//      Info("MIC_STATE_WAIT_FOR_COMPLETION\r\n");
     }
     break;
 
   case MIC_STATE_WAIT_FOR_COMPLETION:
-//    if(MIC_IsMeasurementDoneWrapper()){
-//      MicState = MIC_STATE_WAIT;
-//      MicStamp = HAL_GetTick() + 1000;
-//    }
     if (getSoundData(&soundData, true, true)) {
       clearMaximumAmplitude();
       print("SPL_dBA: %u.%u peak_amp_mPa: %u.%02u   \r\n", soundData.SPL_dBA_int,
@@ -242,7 +221,6 @@ MicrophoneState Mic_Upkeep(){
       sprintf(dBbuffer, "%u.%1u", soundData.SPL_dBA_int, soundData.SPL_dBA_fr_1dp);
 
       dBValue = atof(dBbuffer);
-//      dBValue = roundf(dBValue * 100) / 100;
       dBValue = ((int)(dBValue * 100 + .5) / 100.0);
       MIC_Print();
       if (!startSPLcalculation()) {
@@ -256,7 +234,6 @@ MicrophoneState Mic_Upkeep(){
       MicStamp = HAL_GetTick() + 1000;
       MicState = MIC_STATE_WAIT;
       ResetMICIndicator();
-//      Info("MIC_STATE_WAIT\r\n");
     }
     break;
 
@@ -268,51 +245,17 @@ MicrophoneState Mic_Upkeep(){
         }
       MicState = MIC_STATE_START_MEASUREMENT;
       SetMICIndicator();
-//      Info("MIC_STATE_START_MEASUREMENT\r\n");
     }
     break;
 
   default:
-    Debug("Unexpected ocurrence happened");
+    Debug("Unexpected occurrence happened");
     MicState = MIC_STATE_INIT;
-//    Info("MIC_STATE_INIT due to Unexpected ocurrence\r\n");
     break;
   }
 
   return MicState;
 }
-
-//void VOC_Upkeep(){
-//  switch(VocState){
-//    case VOC_STATE_INIT:
-//      //reset if necesarry
-//      MicState = MIC_STATE_START_MEASUREMENT;
-//      break;
-//
-//    case VOC_STATE_START_MEASUREMENT:
-//      MIC_StartMeasurementWrapper();
-//      MicState = MIC_STATE_WAIT_FOR_COMPLETION;
-//      break;
-//
-//    case VOC_STATE_WAIT_FOR_COMPLETION:
-//      if(MIC_IsMeasurementDoneWrapper()){
-//        MicState = MIC_STATE_WAIT;
-//        MicStamp = HAL_GetTick() + 1000;
-//      }
-//      break;
-//
-//    case VOC_STATE_WAIT:
-//      if(TimestampIsReached(MicStamp)){
-//        MicState = MIC_STATE_START_MEASUREMENT;
-//      }
-//      break;
-//
-//    default:
-//      Debug("Unexpected ocurrence happened");
-//      MicState = MIC_STATE_INIT;
-//      break;
-//    }
-//}
 
 MeasurementState Meas_Upkeep(void) {
   static MeasurementState MeasState = MEAS_STATE_INIT;
@@ -343,7 +286,7 @@ MeasurementState Meas_Upkeep(void) {
 
     // TODO: Return values and let gadget handle with too high humidity and the sensor values
     // TODO: Check if all measurements are ready for the next measurement before switching states. Only check for the enabled measurements.
-    Debug("Processing results.");
+//    Debug("Processing results.");
     Debug("SGP40 index value: %d", MeasurementCtx.vocIndex);
     Debug("Humidity value: %3.2f%%, Temperature value: %3.2fC", MeasurementCtx.humidityPerc, MeasurementCtx.temperature);
     setMeasurement(MeasurementCtx.temperature, MeasurementCtx.humidityPerc, MeasurementCtx.vocIndex);
