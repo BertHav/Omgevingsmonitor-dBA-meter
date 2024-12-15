@@ -67,7 +67,7 @@ typedef struct {
   bool ESP_Tested;
 }MeasurementTested;
 
-
+void setMeasStamp(uint32_t nrTicks);
 void Meas_Init(I2C_HandleTypeDef* sensorI2C, I2S_HandleTypeDef* micI2s, ADC_HandleTypeDef* ADC_HANDLER);
 MeasurementState Meas_Upkeep(void);
 MeasurementState Meas_GetState(void);

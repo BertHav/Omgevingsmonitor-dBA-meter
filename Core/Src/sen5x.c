@@ -18,24 +18,44 @@
 
 
 bool fanCleaningDone = false;
+bool sen5x_On = false;
+static bool sen5x_Enable = false;
 uint32_t sen5xReadTimer = 0;
 uint8_t sen5xSamples = 0;
 uint8_t sen5xErrors = 0;
 static sen5x_states samplesState = LIGHT_OUT;
 SEN5X_DateTypeDef sen5x_data;
 
+void setsen5xReadTimer(uint32_t delayms) {
+  sen5xReadTimer = HAL_GetTick() + delayms;
+}
 
-
+bool enable_sen5x(uint32_t sleepTime) {
+  if (sen5x_Present) {
+    sen5x_Enable = !sen5x_Enable;
+    if (sen5x_Enable) {
+      setsen5xReadTimer(0);
+      Debug("SEN5X status of sen5x_Enable %d", sen5x_Enable);
+    }
+    else {
+      setsen5xReadTimer(HAL_GetTick() +( 3 * (sleepTime*1000)));
+    }
+  }
+  samplesState = LIGHT_OUT; // just to be sure if USB_power is disconnected during measurement cycle
+  return sen5x_Enable;
+}
 void sen5x_Power_On(void) {
-//  Debug("executing sen5x_Power_On");
+  Debug("executing sen5x_Power_On");
   HAL_GPIO_WritePin(Boost_Enable_GPIO_Port, Boost_Enable_Pin, GPIO_PIN_SET);
+  sen5x_On = true;
   HAL_Delay(200);
   return;
 }
 
 void sen5x_Power_Off(void) {
-//  Debug("executing sen5x_Power_Off");
+  Debug("executing sen5x_Power_Off");
   HAL_GPIO_WritePin(Boost_Enable_GPIO_Port, Boost_Enable_Pin, GPIO_PIN_RESET);
+  sen5x_On = false;
   return;
 }
 
@@ -270,6 +290,8 @@ bool sen5x_check_for_errors(void){
   uint32_t device_status = 0;
   if (sen5x_read_device_status(&device_status)) {
     Error("Error reading sen5x device status register");
+//    device_status = SEN5X_NO_RESPONSE;
+    return 0;
   }
   if (device_status == 0) {
     Debug("sen5x operates normal");
@@ -296,10 +318,19 @@ bool sen5x_check_for_errors(void){
   return 1;
 }
 
+void set_light_on_state(void) {
+  sen5x_Power_On();
+  Debug("sen5x powered on, warming up for 30 sec.");
+  if (sen5x_lightup_measurement()) {
+    Error("Error executing sen5x_lightup_measurement()");
+  }
+  samplesState = CHECK_SEN5X;
+}
+
 void sen5x_statemachine(uint8_t delayfactor) {
   bool data_ready = false;
   if (delayfactor == USB_PLUGGED_IN) {
-    delayfactor =100;
+    delayfactor =100; // if operated on USB read about every 30 seconds
   }
   else {
     delayfactor = 1;
@@ -312,13 +343,8 @@ void sen5x_statemachine(uint8_t delayfactor) {
       break;
     case LIGHT_OUT:
 //      Debug(" state is LIGHT_OUT");
-      sen5x_Power_On();
-      Debug("sen5x powered on, warming up for 30 sec.");
-      if (sen5x_lightup_measurement()) {
-        Error("Error executing sen5x_lightup_measurement()");
-      }
-      samplesState = CHECK_SEN5X;
-      sen5xReadTimer = HAL_GetTick() + 30000;
+      set_light_on_state();
+      sen5xReadTimer = HAL_GetTick() + 28000;
       break;
     case CHECK_SEN5X:
       samplesState = LIGHT_ON;

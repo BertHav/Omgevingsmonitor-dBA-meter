@@ -54,6 +54,10 @@ static uint16_t TimeValue = 4000;
 // static uint8_t SGP_TestBuffer[SGP_TEST_BUFFER_SIZE] = {0xBE, 0xEF, 0x92,
 // 0xBE, 0xEF, 0x92};
 
+void forceVOCstart(void) {
+  SGP_MeasurementDutyCycle = HAL_GetTick() + 500;
+}
+
 static void ReadRegister(uint8_t address, uint8_t *buffer, uint8_t nrBytes) {
   if (ReadFunction != NULL) {
     ReadFunction(address, buffer, nrBytes);

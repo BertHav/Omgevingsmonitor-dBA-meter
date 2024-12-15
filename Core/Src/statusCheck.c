@@ -15,11 +15,19 @@ static bool init = true;
 static bool buttonHeld = false;
 uint32_t ConfigStamp;
 uint32_t PowerStamp = 0;
+//Battery_Status powerCheck();
 
 void InitDone(){
   init = false;
 }
 
+/*
+void resetuserToggle(void) {
+  if (powerCheck() != USB_PLUGGED_IN) {
+    userToggle = false;
+  }
+}
+*/
 Battery_Status batteryChargeCheck(){
   Battery_Status status;
   float batteryCharge = ReadBatteryVoltage();
@@ -162,12 +170,14 @@ void configCheck(){
   }
 }
 
-void GoToSleep(uint32_t sleepTime){
-  HAL_Delay(1000);
+void GoToSleep(uint16_t sleepTime){
+  Debug("Entering sleep mode for %d seconds", sleepTime);
+  HAL_Delay(100);
   HAL_SuspendTick();
   //set wake up timer
   RTC_SetWakeUpTimer(sleepTime);
   HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
+  SystemClock_Config();
   HAL_ResumeTick();
 }
 

@@ -29,9 +29,10 @@
 #define ESP_DMA_TIMEOUT 100
 //#define ESP_AT_COMMANDS_COUNT 4
 #define ESP_WIFI_RETRY_TIME 500
+#define ESP_WIFI_WAIT_RESPONSE_TIME_FACTOR 20
 #define ESP_UNTIL_NEXT_SEND 300000
 #define ESP_UNTIL_NEXT_NTP 2900000
-
+#define ESP_MAX_RETRANSMITIONS 3
 #define ESP_SEND_TEMP "\"temp\""
 #define ESP_SEND_HUMID "\"humid\""
 #define ESP_SEND_SOUND "\"sound\""
@@ -150,6 +151,8 @@ typedef struct {
   char BatteryChargeAddress[30];
 }APIConfig;
 
+extern bool ESPTransmitDone;
+extern bool EspTurnedOn;
 void ESP_Init(UART_HandleTypeDef* espUart);
 ESP_States ESP_Upkeep(void);
 void ESP_Reset(void);
@@ -162,6 +165,7 @@ void setPMs(uint16_t PM2, uint16_t PM10);
 void SetConfigMode();
 void ESP_GetHT(float temp, float humid);
 void forceNTPupdate();
+void setESPTimeStamp(uint32_t delayms);
 
 #endif /* INC_ESP_H_ */
 

@@ -79,6 +79,9 @@ static bool MIC_IsMeasurementDoneWrapper(void) {
 bool MIC_IsTestMeasurementDoneWrapper(void) {
   return MIC_TestMeasurementDone();
 }
+void setMeasStamp(uint32_t nrTicks) {
+  MeasStamp = HAL_GetTick() + nrTicks;
+}
 
 void testInit(){
   MeasTest.ESP_Tested = false;
@@ -291,7 +294,7 @@ MeasurementState Meas_Upkeep(void) {
     Debug("Humidity value: %3.2f%%, Temperature value: %3.2fC", MeasurementCtx.humidityPerc, MeasurementCtx.temperature);
     setMeasurement(MeasurementCtx.temperature, MeasurementCtx.humidityPerc, MeasurementCtx.vocIndex);
     ResetMeasurementIndicator();
-    MeasStamp = HAL_GetTick() + 10000;
+    MeasStamp = HAL_GetTick() + 60000;  // once a minute
     MeasState = MEAS_STATE_WAIT;
     break;
 

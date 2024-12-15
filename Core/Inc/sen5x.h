@@ -10,6 +10,7 @@
 #define INC_SEN5X_H_
 
 #include "stm32l0xx_hal.h"
+#include "stdbool.h"
 
 #define SEN5X_FAN_SPEED_ERROR   0x00200000
 #define SEN5X_FAN_CLEANING      0x00080000
@@ -17,6 +18,7 @@
 #define SEN5X_RHT_ERROR         0x00000040
 #define SEN5X_LASER_ERROR       0x00000020
 #define SEN5X_FAN_BLOCKED_ERROR 0x00000010
+#define SEN5X_NO_RESPONSE       0X80000000
 
 
 typedef enum {
@@ -43,7 +45,11 @@ typedef struct
 extern SEN5X_DateTypeDef sen5x_data;
 extern uint32_t sen5xReadTimer;
 extern uint8_t sen5xErrors;
+extern bool sen5x_On;
+extern bool sen5x_Present;
 
+bool enable_sen5x(uint32_t sleepTime);
+void setsen5xReadTimer(uint32_t delayms);
 void sen5x_Power_On(void);
 void sen5x_Power_Off(void);
 void reset_fanCleaningDone(void);
@@ -54,6 +60,7 @@ void sensirion_i2c_hal_free(void);
 int8_t sensirion_i2c_hal_read(uint8_t address, uint8_t* data, uint16_t count);
 int8_t sensirion_i2c_hal_write(uint8_t address, const uint8_t* data, uint16_t count);
 void sensirion_i2c_hal_sleep_usec(uint32_t useconds);
+void set_light_on_state(void);
 void sen5x_statemachine(uint8_t delayfactor);
 
 

@@ -25,7 +25,7 @@ static uint8_t RxBuffer[ESP_MAX_BUFFER_SIZE] = {0};
 //static uint8_t LastATResponse[ESP_MAX_BUFFER_SIZE] = {0};
 static const char user[] = "Test";
 static bool testRound = true;
-static bool EspTurnedOn = false;
+bool EspTurnedOn = false;
 static bool InitIsDone = false;
 static bool WifiReset = false;
 static bool ReconfigSet = false;
@@ -33,11 +33,11 @@ static bool ConnectionMade = false;
 static bool beursTest = false;
 static bool beurs = false;
 static bool setTime = true;
+bool ESPTransmitDone = false;
 static uint32_t uid[3];
 static uint32_t start;
 static uint32_t stop;
 static uint8_t oldEspState = 255;
-
 //static WifiConfig BeursConfig;
 //static APIConfig OpenSenseApi;
 //static APIConfig BeursApi;
@@ -85,8 +85,22 @@ typedef struct {
     bool* doneFlag;
 } ATCommandsParameters;
 
+static AT_Expectation ATExpectation = RECEIVE_EXPECTATION_OK;
+static AT_Commands ATCommand = AT_WAKEUP;
+static ESP_States EspState = ESP_STATE_INIT;
+static AT_Mode Mode;
+static ESP_Test TestState = ESP_TEST_INIT;
+//static ATCommandsParameters ATCommands[ESP_AT_COMMANDS_COUNT];
+
 void forceNTPupdate() {
   ESPNTPTimeStamp = 0;
+}
+
+void setESPTimeStamp(uint32_t delayms) {
+  ESPTimeStamp = HAL_GetTick() + delayms;
+//  ATExpectation = RECEIVE_EXPECTATION_OK;
+//  ATCommand = AT_WAKEUP;
+//  EspState = ESP_STATE_INIT;
 }
 void setCharges(){
   batteryCharge = ReadBatteryVoltage();
@@ -145,12 +159,6 @@ void SetConfigMode(){
 //  int32_t channel;
 //};
 
-static AT_Expectation ATExpectation = RECEIVE_EXPECTATION_OK;
-static AT_Commands ATCommand = AT_WAKEUP;
-static ESP_States EspState = ESP_STATE_INIT;
-static AT_Mode Mode;
-static ESP_Test TestState = ESP_TEST_INIT;
-//static ATCommandsParameters ATCommands[ESP_AT_COMMANDS_COUNT];
 
 //TODO: Add de-init if ESP is off. Otherwise there is going to be 3.3V on the ESP.
 
@@ -204,7 +212,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
   if (huart == EspUart) {
     // Handle error
     //EspState = ESP_STATE_ERROR;
-    Debug("A callback error has occurred, errorcode %d", huart->ErrorCode);
+    if (huart->ErrorCode != 4) {
+      Debug("A callback error has occurred, errorcode %d", huart->ErrorCode);
+    }
   }
 }
 void uint8ArrayToString(char *destination, uint8_t data[])
@@ -645,7 +655,7 @@ Receive_Status DMA_ProcessBuffer(uint8_t expectation) {
       pos = ESP_MAX_BUFFER_SIZE;
     }
     if(pos == OldPos){
-      if(retry > 30){
+      if(retry > ESP_WIFI_WAIT_RESPONSE_TIME_FACTOR){
         retry = 0;
         //EspState = ESP_STATE_SEND;
         if(ATCommand == AT_WAKEUP && testRound == true){
@@ -1062,8 +1072,9 @@ ESP_States ESP_Upkeep(void) {
           }
           EspState = ESP_STATE_SEND;
           errorcntr++;
-          if (errorcntr == 4) {
+          if (errorcntr == ESP_MAX_RETRANSMITIONS) {
             ESPTimeStamp = HAL_GetTick() + ESP_UNTIL_NEXT_SEND;
+            ESPTransmitDone = true;
             ResetESPIndicator();
             clearDMABuffer();
             stop = HAL_GetTick();
@@ -1117,6 +1128,8 @@ ESP_States ESP_Upkeep(void) {
           clearDMABuffer();
           stop = HAL_GetTick();
           Debug("Message send in %lu ms", (stop-start));
+          showTime();
+          ESPTransmitDone = true;
           EspState = ESP_STATE_DEINIT;
         }
         else if (Mode == AT_MODE_GETTIME) {

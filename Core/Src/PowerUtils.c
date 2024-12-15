@@ -120,3 +120,24 @@ bool     UserButton_Pressed(void){
   return   (!HAL_GPIO_ReadPin(User_Button_GPIO_Port, User_Button_Pin));
 }
 
+/* (1) Enable the peripheral clock of GPIOA */
+/* (2) Select input mode (00) on GPIOA pin 0 */
+/* (3) Select Port A for pin 0 extended interrupt by writing 0000
+ in EXTI0 (reset value) */
+/* (4) Configure the corresponding mask bit in the EXTI_IMR register */
+/* (5) Configure the Trigger Selection bits of the Interrupt line
+ on rising edge */
+/* (6) Configure the Trigger Selection bits of the Interrupt line
+ on falling edge */
+//RCC->IOPENR |= RCC_IOPENR_GPIOAEN; /* (1) */
+//GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE0)); /* (2) */
+//SYSCFG->EXTICR[0] &= (uint16_t)~SYSCFG_EXTICR1_EXTI0_PA; /* (3) */
+//EXTI->IMR |= 0x0001; /* (4) */
+//EXTI->RTSR |= 0x0001; /* (5) */
+//EXTI->FTSR |= 0x0001; /* (6) */
+/* Configure NVIC for Extended Interrupt */
+/* (7) Enable Interrupt on EXTI0_1 */
+/* (8) Set priority for EXTI0_1 */
+//NVIC_EnableIRQ(EXTI0_1_IRQn); /* (7) */
+//NVIC_SetPriority(EXTI0_1_IRQn,0); /* (8) */
+

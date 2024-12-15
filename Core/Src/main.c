@@ -98,6 +98,18 @@ void SetTestDone(){
   SetVocLED(4000, 4000, 4000);
   InitDone();
 }
+
+void FlashLEDs(){
+  for (uint8_t i=0; i<5 ; i++){
+    SetDBLED(true, true, true);
+    SetStatusLED(4000, 4000, 3000);
+    SetVocLED(4000, 4000, 3000);
+    HAL_Delay(250);
+    SetLEDsOff();
+    HAL_Delay(250);
+  }
+}
+
 void ESP_Programming_Read_Remaining_DMA()
 {
   //ESP programmer section
@@ -243,22 +255,6 @@ int main(void)
       charge = Battery_Upkeep();
       batteryReadTimer  = HAL_GetTick() + 60000;
     }
-    if(charge == BATTERY_LOW || charge == BATTERY_CRITICAL){
-
-    }
-    if(charge == BATTERY_CRITICAL && ESP_Status == ESP_STATE_RESET){
-      batteryEmpty = true;
-    }
-    else{
-      batteryEmpty = false;
-    }
-    if(charge == BATTERY_FULL){
-
-    }
-    if(TimestampIsReached(timeReadTimer)){
-      UpdateSystemUptime();
-      timeReadTimer  = HAL_GetTick() + 30000;
-    }
 
     if(((charge > BATTERY_LOW) || (charge == USB_PLUGGED_IN)) && sen5x_Present) {
       if  (charge > BATTERY_LOW) {
@@ -273,6 +269,24 @@ int main(void)
         }
       }
     }
+
+    if(charge == BATTERY_LOW || charge == BATTERY_CRITICAL){
+      FlashLEDs();
+    }
+    if(charge == BATTERY_CRITICAL && ESP_Status == ESP_STATE_RESET){
+      batteryEmpty = true;
+      Enter_Standby_Mode(); // we are going in deep sleep, nearly off and no wakeup from RTC
+    }
+    else{
+      batteryEmpty = false;
+    }
+    if(charge == BATTERY_FULL && userToggle && !usbPluggedIn){
+// ok to operate on battery
+    }
+    else if (!(usbPluggedIn||userToggle) && ESPTransmitDone && !EspTurnedOn) {
+      Enter_Stop_Mode(880);
+    }
+
     //    if(TimestampIsReached(LedBlinkTimestamp)) {
     // Red LED
 //
@@ -400,8 +414,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   }
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt
 }
-
-
 
 /* USER CODE END 4 */
 

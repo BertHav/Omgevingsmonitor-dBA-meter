@@ -25,7 +25,10 @@ typedef enum {
   BATTERY_FULL
 }Battery_Status;
 
+extern bool usbPluggedIn;
+extern bool userToggle;
 
+//void resetuserToggle(void);
 void Status_Upkeep();
 Battery_Status Battery_Upkeep();
 void SetStatusLED(uint16_t red, uint16_t green, uint16_t blue);   // Sets Status LED to (RGB) color
@@ -39,5 +42,5 @@ void SetMICIndicator();
 void ResetMICIndicator();
 void SetESPIndicator();
 void ResetESPIndicator();
-void GoToSleep(uint32_t sleepTime);
+void GoToSleep(uint16_t sleepTime);
 #endif /* INC_STATUSCHECK_H_ */
