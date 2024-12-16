@@ -230,6 +230,7 @@ void Enter_Stop_Mode(uint16_t sleepTime)
 //    __HAL_RCC_PWR_CLK_ENABLE();
   //just for sure disable the sen5x power supply
   sen5x_Power_Off();
+  Info("Battery voltage %.2f", ReadBatteryVoltage());
   Debug("Entering STOP mode for %d seconds", sleepTime);
   HAL_Delay(100);
   HAL_SuspendTick();
@@ -241,8 +242,8 @@ void Enter_Stop_Mode(uint16_t sleepTime)
     showTime();
     set_light_on_state();
     if (!userToggle) {
-      RTC_SetWakeUpTimer(27); // go sleep for 27 seconds
-      Debug("Entering STOP mode for 27 seconds");
+      RTC_SetWakeUpTimer(SEN5X_START_UP_TIME); // go sleep for 30 seconds
+      Debug("Entering STOP mode for %d seconds", SEN5X_START_UP_TIME);
       HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
       SystemClock_Config();
     }

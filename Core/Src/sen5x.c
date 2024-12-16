@@ -38,7 +38,7 @@ bool enable_sen5x(uint32_t sleepTime) {
       Debug("SEN5X status of sen5x_Enable %d", sen5x_Enable);
     }
     else {
-      setsen5xReadTimer(HAL_GetTick() +( 3 * (sleepTime*1000)));
+      setsen5xReadTimer(HAL_GetTick() +( 3 * (sleepTime*1000))); //The ticker starts after 3*880, effective this turn the sen5x device will not start
     }
   }
   samplesState = LIGHT_OUT; // just to be sure if USB_power is disconnected during measurement cycle

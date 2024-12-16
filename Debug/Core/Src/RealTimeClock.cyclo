@@ -11,5 +11,5 @@
 ../Core/Src/RealTimeClock.c:191:6:RTC_SetWakeUpTimer	1
 ../Core/Src/RealTimeClock.c:212:6:Enter_Standby_Mode	1
 ../Core/Src/RealTimeClock.c:227:6:Enter_Stop_Mode	3
-../Core/Src/RealTimeClock.c:257:6:InitClock	1
-../Core/Src/RealTimeClock.c:268:10:makeTime	11
+../Core/Src/RealTimeClock.c:258:6:InitClock	1
+../Core/Src/RealTimeClock.c:269:10:makeTime	11
