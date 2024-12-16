@@ -28,7 +28,7 @@ typedef enum {
 extern bool usbPluggedIn;
 extern bool userToggle;
 
-//void resetuserToggle(void);
+void setuserToggle(void);
 void Status_Upkeep();
 Battery_Status Battery_Upkeep();
 void SetStatusLED(uint16_t red, uint16_t green, uint16_t blue);   // Sets Status LED to (RGB) color

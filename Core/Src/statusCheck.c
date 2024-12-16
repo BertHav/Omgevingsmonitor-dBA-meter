@@ -15,19 +15,26 @@ static bool init = true;
 static bool buttonHeld = false;
 uint32_t ConfigStamp;
 uint32_t PowerStamp = 0;
-//Battery_Status powerCheck();
 
 void InitDone(){
   init = false;
 }
 
 /*
-void resetuserToggle(void) {
-  if (powerCheck() != USB_PLUGGED_IN) {
-    userToggle = false;
-  }
-}
-*/
+  100%----4.20V
+  90%-----4.06V
+  80%-----3.98V
+  70%-----3.92V
+  60%-----3.87V
+  50%-----3.82V
+  40%-----3.79V
+  30%-----3.77V
+  20%-----3.74V
+  10%-----3.68V
+  5%------3.45V
+  0%------3.00V
+ */
+
 Battery_Status batteryChargeCheck(){
   Battery_Status status;
   float batteryCharge = ReadBatteryVoltage();
@@ -193,3 +200,8 @@ Battery_Status Battery_Upkeep(){
 
 }
 
+void setuserToggle(void) {
+  if (powerCheck() != USB_PLUGGED_IN) { //operate only in battery operation mode
+    userToggle = true;
+  }
+}

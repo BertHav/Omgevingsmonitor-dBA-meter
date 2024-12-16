@@ -61,7 +61,8 @@ extern "C" {
 
 #define GasIndexAlgorithm_ALGORITHM_TYPE_VOC (0)
 #define GasIndexAlgorithm_ALGORITHM_TYPE_NOX (1)
-#define GasIndexAlgorithm_DEFAULT_SAMPLING_INTERVAL (1.f)
+//#define GasIndexAlgorithm_DEFAULT_SAMPLING_INTERVAL (1.f)
+#define GasIndexAlgorithm_DEFAULT_SAMPLING_INTERVAL (900.f)
 #define GasIndexAlgorithm_INITIAL_BLACKOUT (45.f)
 #define GasIndexAlgorithm_INDEX_GAIN (230.f)
 #define GasIndexAlgorithm_SRAW_STD_INITIAL (50.f)

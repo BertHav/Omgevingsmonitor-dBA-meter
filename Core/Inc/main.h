@@ -87,6 +87,7 @@ void Error_Handler(void);
 #define Wireless_PSU_PG_GPIO_Port GPIOA
 #define BOOT0_Pin GPIO_PIN_15
 #define BOOT0_GPIO_Port GPIOA
+#define BOOT0_EXTI_IRQn EXTI4_15_IRQn
 #define Wireless_PSU_EN_Pin GPIO_PIN_11
 #define Wireless_PSU_EN_GPIO_Port GPIOC
 #define Boost_Enable_Pin GPIO_PIN_12
@@ -99,8 +100,8 @@ void Error_Handler(void);
 #define MCU_LED_C_B_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define SRC_VERSION "2.8 BH"
-#define CURRENT_WEEK "24w50-7"  // -x is daynumber of week i.e. monday = 1
+#define SRC_VERSION "2.91 BH"
+#define CURRENT_WEEK "24w51-1"  // -x is daynumber of week i.e. monday = 1
 #define LED_BLINK_INTERVAL 1000
 void SetTestDone();
 void SystemClock_Config(void);

@@ -280,10 +280,8 @@ int main(void)
     else{
       batteryEmpty = false;
     }
-    if(charge == BATTERY_FULL && userToggle && !usbPluggedIn){
-// ok to operate on battery
-    }
-    else if (!(usbPluggedIn||userToggle) && ESPTransmitDone && !EspTurnedOn) {
+    if (!usbPluggedIn && !userToggle && ESPTransmitDone && !EspTurnedOn) {
+      // ok to operate on battery
       Enter_Stop_Mode(880);
     }
 
@@ -413,6 +411,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   break;
   }
   HAL_UART_Receive_IT(&huart1, u1_rx_buff, 1); //Re-arm the interrupt
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+  if (GPIO_Pin == BOOT0_Pin) {
+    setuserToggle();
+  }
 }
 
 /* USER CODE END 4 */

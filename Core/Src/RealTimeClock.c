@@ -240,10 +240,12 @@ void Enter_Stop_Mode(uint16_t sleepTime)
   if (enable_sen5x((uint32_t)sleepTime)) {
     showTime();
     set_light_on_state();
-    RTC_SetWakeUpTimer(27); // go sleep for 27 seconds
-    Debug("Entering STOP mode for 27 seconds");
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-    SystemClock_Config();
+    if (!userToggle) {
+      RTC_SetWakeUpTimer(27); // go sleep for 27 seconds
+      Debug("Entering STOP mode for 27 seconds");
+      HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+      SystemClock_Config();
+    }
   }
   HAL_ResumeTick(); // Enable SysTick after wake-up
   showTime();
