@@ -230,7 +230,7 @@ void Enter_Stop_Mode(uint16_t sleepTime)
 //    __HAL_RCC_PWR_CLK_ENABLE();
   //just for sure disable the sen5x power supply
   sen5x_Power_Off();
-  Info("Battery voltage %.2f", ReadBatteryVoltage());
+  Info("Battery voltage %.2fV", ReadBatteryVoltage());
   Debug("Entering STOP mode for %d seconds", sleepTime);
   HAL_Delay(100);
   HAL_SuspendTick();

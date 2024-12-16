@@ -100,7 +100,7 @@ void Error_Handler(void);
 #define MCU_LED_C_B_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define SRC_VERSION "2.91 BH"
+#define SRC_VERSION "2.91a BH"
 #define CURRENT_WEEK "24w51-1"  // -x is daynumber of week i.e. monday = 1
 #define LED_BLINK_INTERVAL 1000
 void SetTestDone();
