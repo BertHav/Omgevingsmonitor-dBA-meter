@@ -1,5 +1,0 @@
-../Core/Src/PC_Config.c:17:6:Process_PC_Config	280	static
-../Core/Src/PC_Config.c:55:6:ProcessCmd	24	static
-../Core/Src/PC_Config.c:114:6:Create_Message	40	static
-../Core/Src/PC_Config.c:128:17:CRC16_ARC	32	static
-../Core/Src/PC_Config.c:152:6:printf_USB	176	static

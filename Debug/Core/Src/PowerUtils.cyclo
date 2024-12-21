@@ -1,6 +1,0 @@
-../Core/Src/PowerUtils.c:17:7:ReadBatteryVoltage	3
-../Core/Src/PowerUtils.c:41:7:ReadSolarVoltage	3
-../Core/Src/PowerUtils.c:64:6:Check_USB_PowerOn	1
-../Core/Src/PowerUtils.c:75:14:Read_Charge_Status	3
-../Core/Src/PowerUtils.c:114:10:BootButton_Pressed	1
-../Core/Src/PowerUtils.c:119:10:UserButton_Pressed	1

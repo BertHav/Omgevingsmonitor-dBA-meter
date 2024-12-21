@@ -1,3 +1,0 @@
-../Core/Src/microphone.c:229:6:MIC_Print	18
-../Core/Src/microphone.c:298:6:MIC_MeasurementDone	2
-../Core/Src/microphone.c:310:6:MIC_TestMeasurementDone	2
