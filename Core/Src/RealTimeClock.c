@@ -22,9 +22,11 @@ static const char *monthNames[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "
 static RTC_HandleTypeDef * RealTime_Handle;
 static uint32_t posixBootTime = 0;
 
-char systemUptime[16] = {0};
+//char systemUptime[16] = {0};
+char strbuf[24] = {0}; //22-jan-24 23h:12m:23s
 
 uint32_t makeTime(RTC_DateTypeDef* currentDate, RTC_TimeTypeDef* currentTime);
+void breakPosixTime(uint32_t timeInput, RTC_DateTypeDef* currentDate, RTC_TimeTypeDef* currentTime);
 
 void showTime() {
   RTC_TimeTypeDef currentTime;
@@ -154,6 +156,24 @@ uint8_t RTC_GetWeekday(void) {
   return currentDate.WeekDay;
 }
 
+uint32_t getPosixTime(void) {
+  RTC_TimeTypeDef currentTime;
+  RTC_DateTypeDef currentDate;
+  RTC_GetTime(&currentTime, &currentDate);
+  return makeTime(&currentDate, &currentTime);
+}
+
+void getUTCfromPosixTime(uint32_t posixTime, char* strbuf1) {
+  RTC_TimeTypeDef currentTime;
+  RTC_DateTypeDef currentDate;
+//  RTC_GetTime(&currentTime, &currentDate);
+  breakPosixTime(posixTime, &currentDate, &currentTime);
+//  printf("%s %d-%d-%d %dh:%dm:%ds\r\n", dayNames[currentDate.WeekDay - 1], currentDate.Date, currentDate.Month, currentDate.Year,
+//      currentTime.Hours, currentTime.Minutes, currentTime.Seconds);
+  sprintf(strbuf1, "%02d-%02d-%02d %02dh:%02dm:%02ds\r\n", currentDate.Date, currentDate.Month, currentDate.Year,
+      currentTime.Hours, currentTime.Minutes, currentTime.Seconds);
+}
+
 // Functie om een alarm in te stellen
 void RTC_SetAlarm(uint8_t hours, uint8_t minutes, uint8_t seconds) {
     RTC_AlarmTypeDef sAlarm = {0};
@@ -232,6 +252,8 @@ void Enter_Stop_Mode(uint16_t sleepTime)
   sen5x_Power_Off();
   Info("Battery voltage %.2fV", ReadBatteryVoltage());
   Debug("Entering STOP mode for %d seconds", sleepTime);
+  getUTCfromPosixTime(getPosixTime() + sleepTime, strbuf);
+  Info("The system will wake up at %s.", strbuf);
   HAL_Delay(100);
   HAL_SuspendTick();
   //set wake up timer
@@ -296,3 +318,58 @@ uint32_t makeTime(RTC_DateTypeDef* currentDate, RTC_TimeTypeDef* currentTime){
   seconds+= currentTime->Seconds;
   return seconds;
 }
+
+void breakPosixTime(uint32_t timeInput, RTC_DateTypeDef* currentDate, RTC_TimeTypeDef* currentTime){
+// break the given time_t into time components
+// this is a more compact version of the C library localtime function
+// note that year is offset from 1970 !!!
+
+  uint8_t year;
+  uint8_t month, monthLength;
+  uint32_t time;
+  uint32_t days;
+
+  time = timeInput;
+  currentTime->Seconds = time % 60;
+  time /= 60; // now it is minutes
+  currentTime->Minutes = time % 60;
+  time /= 60; // now it is hours
+  currentTime->Hours = time % 24;
+  time /= 24; // now it is days
+  currentDate->WeekDay = ((time - 1) % 7) + 1;  // Monday is day 1, since sat 1-1-2000
+  year = 0;
+  days = 0;
+  while((days += (LEAP_YEAR(year) ? 366 : 365)) <= time) {
+    year++;
+  }
+  currentDate->Year = year; // year is offset from 1970
+
+  days -= LEAP_YEAR(year) ? 366 : 365;
+  time  -= days; // now it is days in this year, starting at 0
+
+  days=0;
+  month=0;
+  monthLength=0;
+  for (month=0; month<12; month++) {
+    if (month==1) { // february
+      if (LEAP_YEAR(year)) {
+        monthLength=29;
+      } else {
+        monthLength=28;
+      }
+    } else {
+      monthLength = monthDays[month];
+    }
+
+    if (time >= monthLength) {
+      time -= monthLength;
+    } else {
+        break;
+    }
+  }
+  currentDate->Month = month + 1;  // jan is month 1
+  currentDate->Date = time + 1;     // day of month
+//  printf("breakPosixTime: daynr: %d, %s %02d-%02d-%d %02d:%02d:%02d\r\n", currentDate->WeekDay, dayNames[currentDate->WeekDay - 1],
+//      currentDate->Date, currentDate->Month, currentDate->Year, currentTime->Hours, currentTime->Minutes, currentTime->Seconds);
+}
+

@@ -1,0 +1,3 @@
+../Core/Src/print_functions.c:16:6:print	16	static
+../Core/Src/print_functions.c:29:6:print64hex	80	static
+../Core/Src/print_functions.c:51:6:printU64hex	64	static

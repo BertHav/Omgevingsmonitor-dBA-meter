@@ -1,0 +1,8 @@
+../Core/Src/sound_utilities.c:15:6:floatToIntAndFrac2dp	1
+../Core/Src/sound_utilities.c:28:6:floatToIntAndFrac1dp	1
+../Core/Src/sound_utilities.c:37:6:sumToIntAverage	2
+../Core/Src/sound_utilities.c:58:6:findMinMax	4
+../Core/Src/sound_utilities.c:79:10:getPo2factor	4
+../Core/Src/sound_utilities.c:99:6:amplitudeDN_to_mPa	1
+../Core/Src/sound_utilities.c:110:6:scaleSPL	1
+../Core/Src/sound_utilities.c:125:6:decodeI2SdataLch	2

@@ -1,0 +1,4 @@
+../Core/Src/EEProm.c:3:10:WriteUint8ArrayEeprom	40	static
+../Core/Src/EEProm.c:17:6:WriteUint8ArrayEepromSafe	24	static
+../Core/Src/EEProm.c:25:6:ReadUint8ArrayEEprom	32	static
+../Core/Src/EEProm.c:33:6:ClearEEprom	32	static

@@ -1,0 +1,10 @@
+../Core/Src/sound_measurement.c:293:13:processHalfDMAbuffer	128	static
+../Core/Src/sound_measurement.c:164:6:soundInit	0	static
+../Core/Src/sound_measurement.c:178:6:clearMaximumAmplitude	0	static
+../Core/Src/sound_measurement.c:202:6:micSettlingComplete	16	static
+../Core/Src/sound_measurement.c:92:6:getSoundData	48	static,ignoring_inline_asm
+../Core/Src/sound_measurement.c:219:6:enableMicrophone	16	static,ignoring_inline_asm
+../Core/Src/sound_measurement.c:258:6:startSPLcalculation	16	static
+../Core/Src/sound_measurement.c:275:6:HAL_I2S_RxHalfCpltCallback	8	static
+../Core/Src/sound_measurement.c:285:6:HAL_I2S_RxCpltCallback	8	static
+../Core/Src/sound_measurement.c:314:6:HAL_I2S_ErrorCallback	8	static

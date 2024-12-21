@@ -253,7 +253,8 @@ int main(void)
     Status_Upkeep();
     if(TimestampIsReached(batteryReadTimer)){
       charge = Battery_Upkeep();
-      batteryReadTimer  = HAL_GetTick() + 60000;
+      batteryReadTimer  = HAL_GetTick() + 50000;
+      showTime();
     }
 
     if(((charge > BATTERY_LOW) || (charge == USB_PLUGGED_IN)) && sen5x_Present) {

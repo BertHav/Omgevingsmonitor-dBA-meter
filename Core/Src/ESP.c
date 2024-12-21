@@ -66,6 +66,9 @@ static AT_Commands AT_SNTP[] = {AT_WAKEUP, AT_CIPSNTPCFG, AT_CIPSNTPTIME, AT_CIP
 uint8_t ATState;
 uint8_t ATCounter = 0;
 static uint8_t errorcntr = 0;
+//===
+static uint8_t timeoutcntr = 0;
+//===
 static uint32_t ESPTimeStamp = 0;
 static uint32_t ESPNTPTimeStamp = 0;
 static uint32_t savedESPTimeStamp = 0;
@@ -1089,6 +1092,20 @@ ESP_States ESP_Upkeep(void) {
           ESPTimeStamp = HAL_GetTick() + 10;
         }
         if(ATReceived == RECEIVE_STATUS_TIMEOUT){
+//====
+          timeoutcntr++;
+          if (timeoutcntr == ESP_MAX_RETRANSMITIONS) {
+            ESPTimeStamp = HAL_GetTick() + ESP_UNTIL_NEXT_SEND;
+            ESPTransmitDone = true;
+            ResetESPIndicator();
+            clearDMABuffer();
+            stop = HAL_GetTick();
+            Debug("ESP to many timeouts, terminated after %lu ms", (stop-start));
+            EspState = ESP_STATE_DEINIT;
+            ATCommand = AT_END;
+            ATExpectation = RECEIVE_EXPECTATION_OK;
+          }
+//====
           if(ATCommand != AT_SENDDATA){
             EspState = ESP_STATE_SEND;
           }
